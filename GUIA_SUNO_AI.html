@@ -1,0 +1,1244 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía Completa: Optimización de Prompts para Suno AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0e1a;
+            --bg-secondary: #141927;
+            --bg-card: #1a1f35;
+            --accent-primary: #00d9ff;
+            --accent-secondary: #7c3aed;
+            --accent-success: #10b981;
+            --accent-warning: #f59e0b;
+            --text-primary: #e5e7eb;
+            --text-secondary: #9ca3af;
+            --border-color: #2d3548;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-card) 100%);
+            padding: 60px 0;
+            text-align: center;
+            border-bottom: 2px solid var(--accent-primary);
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0, 217, 255, 0.1) 0%, transparent 70%);
+            animation: pulse 8s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.2); opacity: 0.8; }
+        }
+
+        h1 {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 700;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            position: relative;
+            z-index: 1;
+        }
+
+        .subtitle {
+            font-size: clamp(1rem, 2.5vw, 1.3rem);
+            color: var(--text-secondary);
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Navigation Steps */
+        .progress-nav {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            padding: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .step-indicator {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--bg-card);
+            border: 2px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .step-indicator:hover {
+            border-color: var(--accent-primary);
+            transform: scale(1.1);
+        }
+
+        .step-indicator.active {
+            background: var(--accent-primary);
+            border-color: var(--accent-primary);
+            color: var(--bg-primary);
+        }
+
+        /* Section Cards */
+        .section {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 40px;
+            margin: 30px 0;
+            border: 1px solid var(--border-color);
+            animation: fadeInUp 0.6s ease-out;
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h2 {
+            font-size: clamp(1.5rem, 3vw, 2rem);
+            margin-bottom: 20px;
+            color: var(--accent-primary);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        h3 {
+            font-size: clamp(1.2rem, 2.5vw, 1.5rem);
+            margin: 25px 0 15px;
+            color: var(--text-primary);
+            border-left: 4px solid var(--accent-secondary);
+            padding-left: 15px;
+        }
+
+        .step-number {
+            background: var(--accent-secondary);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        /* Code Boxes */
+        .code-box {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .code-label {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: var(--accent-secondary);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .code-content {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            line-height: 1.7;
+            color: #10b981;
+            white-space: pre-wrap;
+            word-break: break-word;
+            margin-top: 20px;
+        }
+
+        .copy-btn {
+            background: var(--accent-primary);
+            color: var(--bg-primary);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .copy-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 217, 255, 0.3);
+        }
+
+        .copy-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Info Boxes */
+        .info-box {
+            background: rgba(0, 217, 255, 0.1);
+            border-left: 4px solid var(--accent-primary);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+
+        .warning-box {
+            background: rgba(245, 158, 11, 0.1);
+            border-left: 4px solid var(--accent-warning);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+
+        .success-box {
+            background: rgba(16, 185, 129, 0.1);
+            border-left: 4px solid var(--accent-success);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+
+        .box-title {
+            font-weight: 700;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Lists */
+        ul, ol {
+            margin: 15px 0;
+            padding-left: 25px;
+        }
+
+        li {
+            margin: 10px 0;
+            color: var(--text-secondary);
+        }
+
+        li strong {
+            color: var(--text-primary);
+        }
+
+        /* Table */
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            overflow-x: auto;
+            display: block;
+        }
+
+        .comparison-table table {
+            width: 100%;
+            min-width: 600px;
+        }
+
+        .comparison-table th {
+            background: var(--accent-secondary);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .comparison-table td {
+            padding: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .comparison-table tr:hover {
+            background: rgba(0, 217, 255, 0.05);
+        }
+
+        /* Navigation Buttons */
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 40px;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--accent-primary);
+            color: var(--bg-primary);
+        }
+
+        .btn-secondary {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 217, 255, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Checklist */
+        .checklist {
+            list-style: none;
+            padding: 0;
+        }
+
+        .checklist li {
+            padding: 12px;
+            background: var(--bg-secondary);
+            margin: 10px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .checklist li:hover {
+            background: var(--bg-card);
+            transform: translateX(5px);
+        }
+
+        .checkbox {
+            width: 24px;
+            height: 24px;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .checklist li.checked .checkbox {
+            background: var(--accent-success);
+            border-color: var(--accent-success);
+        }
+
+        .checklist li.checked .checkbox::after {
+            content: '✓';
+            color: white;
+            font-weight: bold;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .section {
+                padding: 25px;
+            }
+
+            .nav-buttons {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            h2 {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+
+        /* Tooltips */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            border-bottom: 1px dotted var(--accent-primary);
+            cursor: help;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 250px;
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            text-align: center;
+            border-radius: 8px;
+            padding: 10px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -125px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            border: 1px solid var(--border-color);
+            font-size: 0.85rem;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>🎸 Guía Completa: Suno AI</h1>
+            <p class="subtitle">Optimización de Prompts para Acoustic Rock Crudo</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="progress-nav" id="progressNav"></div>
+
+        <!-- PASO 1 -->
+        <section class="section active" data-step="1">
+            <h2><span class="step-number">1</span> Entendiendo el Problema</h2>
+            
+            <p>Suno AI a menudo <strong>modifica</strong> o <strong>suaviza</strong> elementos clave cuando intentas mantener un sonido específico. Los problemas más comunes:</p>
+
+            <div class="warning-box">
+                <div class="box-title">⚠️ Problemas Típicos</div>
+                <ul>
+                    <li><strong>Cambia los acordes:</strong> Aunque especifiques Em, agrega progresiones no deseadas</li>
+                    <li><strong>Limpia el audio:</strong> Elimina la "crudeza" que buscas</li>
+                    <li><strong>Suaviza la voz:</strong> Pierde el rasp y textura deseada</li>
+                    <li><strong>Ignora el español:</strong> En partes habladas, puede cambiar el idioma o tono</li>
+                    <li><strong>Sobreproduce:</strong> Agrega reverb, efectos o capas no solicitadas</li>
+                </ul>
+            </div>
+
+            <h3>Por Qué Sucede Esto</h3>
+            <p>Suno está entrenado con música profesional pulida. Para lograr sonidos "crudos" o "imperfectos", necesitas:</p>
+            
+            <ol>
+                <li><strong>Ser ultra-específico</strong> con términos técnicos</li>
+                <li><strong>Usar redundancia estratégica</strong> (repetir conceptos clave)</li>
+                <li><strong>Agregar "keywords de rareza"</strong> que anclen la estética cruda</li>
+                <li><strong>Estructurar correctamente</strong> cada campo de Suno</li>
+            </ol>
+
+            <div class="info-box">
+                <div class="box-title">💡 Concepto Clave</div>
+                <p>Suno tiene <strong>dos cerebros separados</strong>: uno lee el campo "Style", otro lee "Lyrics". Debes instruir a AMBOS de manera complementaria, no redundante.</p>
+            </div>
+
+            <div class="nav-buttons">
+                <button class="btn btn-secondary" onclick="prevStep()" disabled>← Anterior</button>
+                <button class="btn btn-primary" onclick="nextStep()">Siguiente →</button>
+            </div>
+        </section>
+
+        <!-- PASO 2 -->
+        <section class="section" data-step="2">
+            <h2><span class="step-number">2</span> Anatomía de los Campos de Suno</h2>
+
+            <h3>Campo 1: LYRICS (Letras)</h3>
+            <div class="code-box">
+                <div class="code-label">Lyrics Field</div>
+                <div class="code-content">[Intro]
+[percussive acoustic guitar with palm slaps]
+
+[Verse]
+[gritty male vocal]
+And the light has to change
+When you go far
+And the one
+
+[break - guitar stops]
+[spoken casual Chilean Spanish]
+Esa es la nota pues huevón
+Pero me la deja media menor
+Pero igual suena taquilla la huevada
+
+[Outro]
+[palm muted acoustic fades]</div>
+                <button class="copy-btn" onclick="copyToClipboard(this)">Copiar</button>
+            </div>
+
+            <div class="info-box">
+                <div class="box-title">📝 Qué Hace el Campo Lyrics</div>
+                <ul>
+                    <li>Define la <strong>estructura temporal</strong> (intro, verse, chorus, outro)</li>
+                    <li>Controla <strong>cuándo cantar vs cuándo tocar</strong></li>
+                    <li>Especifica <strong>cambios de dinámica</strong> ([guitar stops], [fades])</li>
+                    <li>Incluye las <strong>palabras exactas</strong> que se cantarán o hablarán</li>
+                </ul>
+            </div>
+
+            <h3>Campo 2: STYLE OF MUSIC</h3>
+            <div class="code-box">
+                <div class="code-label">Style Field</div>
+                <div class="code-content">raw acoustic rock, steel-string guitar percussive strumming, palm mute backbeat simulation, gritty male rasp vocal, E minor dissonant voicings, 110 BPM, lo-fi room recording, finger noise, string buzz, Elliott Smith style, José González percussive technique, Chilean spoken word interlude, minimal processing, intimate workshop recording</div>
+                <button class="copy-btn" onclick="copyToClipboard(this)">Copiar</button>
+            </div>
+
+            <div class="info-box">
+                <div class="box-title">🎵 Qué Hace el Campo Style</div>
+                <ul>
+                    <li>Define el <strong>género y subgénero musical</strong></li>
+                    <li>Especifica <strong>técnicas instrumentales</strong> exactas</li>
+                    <li>Controla la <strong>calidad de producción</strong> (lo-fi, studio, live)</li>
+                    <li>Ancla con <strong>referencias de artistas</strong> similares</li>
+                    <li>Determina <strong>tempo y estructura rítmica</strong></li>
+                </ul>
+            </div>
+
+            <div class="warning-box">
+                <div class="box-title">🚫 Error Común</div>
+                <p><strong>NO pongas acordes o notas musicales en Lyrics.</strong> Suno ignora instrucciones técnicas ahí. Ejemplo de lo que NO hacer:</p>
+                <pre style="color: var(--accent-warning); margin-top: 10px;">[Em chord]
+[Root-5th-9th voicing]</pre>
+                <p style="margin-top: 10px;">Esto va en el campo <strong>Style</strong>, no en Lyrics.</p>
+            </div>
+
+            <div class="nav-buttons">
+                <button class="btn btn-secondary" onclick="prevStep()">← Anterior</button>
+                <button class="btn btn-primary" onclick="nextStep()">Siguiente →</button>
+            </div>
+        </section>
+
+        <!-- PASO 3 -->
+        <section class="section" data-step="3">
+            <h2><span class="step-number">3</span> Keywords Mágicas de Rareza</h2>
+
+            <p>Estas palabras clave son CRÍTICAS para mantener la estética cruda y evitar que Suno "limpie" tu audio:</p>
+
+            <div class="comparison-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Keyword</th>
+                            <th>Qué Hace</th>
+                            <th>Cuándo Usar</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>lo-fi recording</code></td>
+                            <td>Mantiene calidad de grabación cruda</td>
+                            <td>Siempre para sonido no-pulido</td>
+                        </tr>
+                        <tr>
+                            <td><code>room ambience</code></td>
+                            <td>Evita reverb artificial, usa espacio natural</td>
+                            <td>Para grabaciones "en vivo"</td>
+                        </tr>
+                        <tr>
+                            <td><code>finger noise</code></td>
+                            <td>Mantiene ruidos de dedos en cuerdas</td>
+                            <td>Guitarra acústica percusiva</td>
+                        </tr>
+                        <tr>
+                            <td><code>string buzz</code></td>
+                            <td>Conserva imperfecciones de cuerdas</td>
+                            <td>Sonido crudo de guitarra</td>
+                        </tr>
+                        <tr>
+                            <td><code>workshop recording</code></td>
+                            <td>Estética de "ensayo", no estudio</td>
+                            <td>Máxima crudeza</td>
+                        </tr>
+                        <tr>
+                            <td><code>minimal processing</code></td>
+                            <td>Evita compresión/EQ excesivos</td>
+                            <td>Mantener dinámica natural</td>
+                        </tr>
+                        <tr>
+                            <td><code>intimate recording</code></td>
+                            <td>Proximidad de micrófono, respiración audible</td>
+                            <td>Voz cercana, personal</td>
+                        </tr>
+                        <tr>
+                            <td><code>slight timing imperfections</code></td>
+                            <td>Evita cuantización robótica</td>
+                            <td>Ritmo humano, orgánico</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Keywords para Voz Raspada</h3>
+            <div class="code-box">
+                <div class="code-label">Vocal Texture Keywords</div>
+                <div class="code-content">gritty male rasp vocal
+hoarse vocal texture
+scratchy throat
+cigarette rasp
+raw unpolished vocal
+breathy male voice
+slight vocal crack
+natural vocal rasp</div>
+                <button class="copy-btn" onclick="copyToClipboard(this)">Copiar</button>
+            </div>
+
+            <h3>Keywords para Mantener Acordes</h3>
+            <div class="code-box">
+                <div class="code-label">Chord Stability Keywords</div>
+                <div class="code-content">static harmony
+no key change
+anchored in E minor
+no chord progression
+repetitive chord pattern
+single chord focus
+E minor base throughout</div>
+                <button class="copy-btn" onclick="copyToClipboard(this)">Copiar</button>
+            </div>
+
+            <div class="success-box">
+                <div class="box-title">✅ Pro Tip</div>
+                <p>Combina 3-5 keywords de rareza en tu prompt Style. Más keywords = más ancla contra la "limpieza" automática de Suno.</p>
+            </div>
+
+            <div class="nav-buttons">
+                <button class="btn btn-secondary" onclick="prevStep()">← Anterior</button>
+                <button class="btn btn-primary" onclick="nextStep()">Siguiente →</button>
+            </div>
+        </section>
+
+        <!-- PASO 4 -->
+        <section class="section" data-step="4">
+            <h2><span class="step-number">4</span> Referencias de Artistas</h2>
+
+            <p>Usar nombres de artistas como referencia es EXTREMADAMENTE efectivo para anclar el sonido exacto que buscas:</p>
+
+            <h3>Por Qué Funcionan las Referencias</h3>
+            <div class="info-box">
+                <div class="box-title">🎯 Ventajas</div>
+                <ul>
+                    <li>Suno conoce el estilo de producción de artistas específicos</li>
+                    <li>Una referencia vale por 20 keywords descriptivas</li>
+                    <li>Ancla múltiples aspectos a la vez: producción, voz, instrumentación</li>
+                    <li>Evita ambigüedad en interpretación de términos genéricos</li>
+                </ul>
+            </div>
+
+            <h3>Artistas Clave para Tu Estilo</h3>
+
+            <div class="code-box">
+                <div class="code-label">Acoustic Raw / Lo-Fi</div>
+                <div class="code-content">Elliott Smith - Grabaciones crudas de guitarra acústica, voz íntima
+Damien Rice raw recordings - Producción minimalista, emocional
+early Bright Eyes - Lo-fi bedroom recording aesthetic
+Conor Oberst solo work - Voz raspada, guitarra percusiva</div>
+                <button class="copy-btn" onclick="copyToClipboard(this)">Copiar</button>
+            </div>
+
+            <div class="code-box">
+                <div class="code-label">Percussive Guitar Technique</div>
+                <div class="code-content">José González - Técnica percusiva de palm mute distintiva
+Ben Howard fingerstyle - Guitarras rítmicas complejas
+Kaki King percussive - Técnicas de slap y tap en acústica
+Michael Hedges - Guitarra percusiva experimental</div>
+                <button class="copy-btn" onclick="copyToClipboard(this)">Copiar</button>
+            </div>
+
+            <div class="code-box">
+                <div class="code-label">Indie Folk Latinoamericano</div>
+                <div class="code-content">Gepe acoustic sessions - Indie chileno, producción cruda
+Javiera Mena unplugged - Estética lo-fi latina
+Pedropiedra - Folk experimental chileno
+Alex Anwandter acoustic - Indie pop latino minimalista</div>
+                <button class="copy-btn" onclick="copyToClipboard(this)">Copiar</button>
+            </div>
+
+            <h3>Cómo Combinar Referencias</h3>
+            <p>Usa <strong>2-3 artistas máximo</strong> para evitar confusión. Ejemplo efectivo:</p>
+
+            <div class="code-box">
+                <div class="code-label">Combinación Óptima</div>
+                <div class="code-content">Elliott Smith lo-fi production, José González percussive guitar technique, Chilean indie folk aesthetic</div>
+                <button class="copy-btn" onclick="copyToClipboard(this)">Copiar</button>
+            </div>
+
+            <div class="warning-box">
+                <div class="box-title">⚠️ Cuidado</div>
+                <p>NO combines artistas con estilos opuestos (ej: "Elliott Smith meets Metallica"). Genera resultados impredecibles o genéricos.</p>
+            </div>
+
+            <div class="nav-buttons">
+                <button class="btn btn-secondary" onclick="prevStep()">← Anterior</button>
+                <button class="btn btn-primary" onclick="nextStep()">Siguiente →</button>
+            </div>
+        </section>
+
+        <!-- PASO 5 -->
+        <section class="section" data-step="5">
+            <h2><span class="step-number">5</span> Prompt Completo Optimizado</h2>
+
+            <p>Ahora juntamos todo en el prompt final. Este es el resultado de aplicar todas las técnicas anteriores:</p>
+
+            <h3>Lyrics (Campo de Letras)</h3>
+            <div class="code-box">
+                <div class="code-label">CAMPO: Lyrics</div>
+                <div class="code-content">[Intro]
+[percussive acoustic guitar with palm slaps]
+[steel-string strumming]
+
+[Verse]
+[gritty male vocal with rasp]
+And the light has to change
+When you go far
+And the one
+
+[break]
+[guitar stops abruptly]
+[spoken casual Chilean Spanish]
+Esa es la nota pues huevón
+Pero me la deja media menor
+Pero igual suena taquilla la huevada
+
+[Bridge]
+[palm muted acoustic returns]
+[finger noise audible]
+
+[Outro]
+[percussive strumming fades]
+[room ambience remains]</div>
+                <button class="copy-btn" onclick="copyToClipboard(this)">Copiar</button>
+            </div>
+
+            <h3>Style of Music (Campo de Estilo)</h3>
+            <div class="code-box">
+                <div class="code-label">CAMPO: Style of Music</div>
+                <div class="code-content">raw acoustic rock, single steel-string guitar, percussive strumming technique, palm mute backbeat simulation, gritty male rasp vocal, E minor dissonant voicings, static harmony no chord changes, 110 BPM 4/4 time, lo-fi room recording, minimal processing, finger noise string buzz audible, Elliott Smith lo-fi production, José González percussive guitar, Chilean spoken word interlude, intimate workshop recording aesthetic, raw unpolished vocal, breathing sounds, slight timing imperfections, natural room reverb only, bedroom folk rock, unplugged grunge texture</div>
+                <button class="copy-btn" onclick="copyToClipboard(this)">Copiar</button>
+            </div>
+
+            <div class="success-box">
+                <div class="box-title">✅ Elementos Clave Incluidos</div>
+                <ul>
+                    <li><strong>Estabilidad de acordes:</strong> "E minor dissonant voicings, static harmony no chord changes"</li>
+                    <li><strong>Textura cruda:</strong> "lo-fi room recording, minimal processing, finger noise string buzz"</li>
+                    <li><strong>Voz raspada:</strong> "gritty male rasp vocal, raw unpolished vocal"</li>
+                    <li><strong>Referencias:</strong> "Elliott Smith", "José González"</li>
+                    <li><strong>Español natural:</strong> "Chilean spoken word interlude"</li>
+                    <li><strong>Técnica específica:</strong> "percussive strumming, palm mute backbeat simulation"</li>
+                </ul>
+            </div>
+
+            <h3>Contexto Adicional (Si Disponible)</h3>
+            <p>Si Suno tiene un campo de "Custom Mode" o "Additional Instructions":</p>
+
+            <div class="code-box">
+                <div class="code-label">CAMPO: Additional Context (Opcional)</div>
+                <div class="code-content">Maintain exact E minor chord voicing throughout entire track. Do not modulate or change chords. Keep percussive guitar riff pattern consistent and repetitive. Preserve lo-fi recording aesthetic with finger noise and string buzz. Do not add studio processing, reverb, or vocal tuning. Keep Chilean Spanish spoken section natural and conversational. Heavy emphasis on raw, workshop recording quality.</div>
+                <button class="copy-btn" onclick="copyToClipboard(this)">Copiar</button>
+            </div>
+
+            <div class="nav-buttons">
+                <button class="btn btn-secondary" onclick="prevStep()">← Anterior</button>
+                <button class="btn btn-primary" onclick="nextStep()">Siguiente →</button>
+            </div>
+        </section>
+
+        <!-- PASO 6 -->
+        <section class="section" data-step="6">
+            <h2><span class="step-number">6</span> Estrategia de Generación</h2>
+
+            <p>Cómo usar Suno de forma estratégica para obtener los mejores resultados:</p>
+
+            <h3>Técnica 1: Generación por Segmentos</h3>
+            <div class="info-box">
+                <div class="box-title">📍 Cuándo Usar</div>
+                <p>Si Suno cambia mucho los acordes o "limpia" demasiado el audio en generaciones largas.</p>
+            </div>
+
+            <ol>
+                <li><strong>Genera clips CORTOS</strong> (15-30 segundos inicialmente)</li>
+                <li>En clips cortos es más fácil mantener acordes estáticos</li>
+                <li>Una vez tengas el segmento perfecto, usa "Extend" para alargar</li>
+                <li>Extend mantiene mejor el estilo que regenerar completo</li>
+            </ol>
+
+            <div class="code-box">
+                <div class="code-label">Primera Generación (30 seg)</div>
+                <div class="code-content">[Intro]
+[percussive acoustic guitar]
+
+[Verse - first 4 lines only]
+And the light has to change
+When you go far</div>
+                <button class="copy-btn" onclick="copyToClipboard(this)">Copiar</button>
+            </div>
+
+            <h3>Técnica 2: Seed Locking (Anclaje de Semilla)</h3>
+            <div class="info-box">
+                <div class="box-title">🎲 Qué es el Seed</div>
+                <p>Cada generación de Suno tiene un "seed" (semilla aleatoria). Si encuentras una versión casi perfecta, puedes anclarla.</p>
+            </div>
+
+            <ol>
+                <li>Genera 4-5 versiones con el mismo prompt</li>
+                <li>Identifica cuál mantiene mejor los acordes/textura</li>
+                <li>Usa <strong>"Extend from this clip"</strong> en lugar de regenerar</li>
+                <li>Extend hereda características del clip original</li>
+            </ol>
+
+            <h3>Técnica 3: Iteración Incremental</h3>
+            <p>Si los resultados no son buenos en el primer intento:</p>
+
+            <div class="comparison-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Problema</th>
+                            <th>Solución en Style</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Cambia los acordes</td>
+                            <td>Agregar: <code>single chord drone, no modulation, anchored harmony</code></td>
+                        </tr>
+                        <tr>
+                            <td>Voz muy limpia</td>
+                            <td>Agregar: <code>hoarse, scratchy throat, cigarette rasp, vocal fry</code></td>
+                        </tr>
+                        <tr>
+                            <td>Audio muy pulido</td>
+                            <td>Agregar: <code>cassette tape quality, 4-track recording, tape hiss</code></td>
+                        </tr>
+                        <tr>
+                            <td>Pierde el español</td>
+                            <td>Fortalecer en Lyrics: <code>[spoken native Chilean Spanish]</code></td>
+                        </tr>
+                        <tr>
+                            <td>Agrega reverb</td>
+                            <td>Agregar: <code>dry recording, no reverb, close mic placement</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Técnica 4: Control de Duración</h3>
+            <div class="warning-box">
+                <div class="box-title">⏱️ Duración Estratégica</div>
+                <ul>
+                    <li><strong>15-30 seg:</strong> Máximo control, perfecto para testear</li>
+                    <li><strong>1-2 min:</strong> Balance entre control y completitud</li>
+                    <li><strong>3+ min:</strong> Mayor riesgo de desviación del prompt</li>
+                </ul>
+            </div>
+
+            <div class="nav-buttons">
+                <button class="btn btn-secondary" onclick="prevStep()">← Anterior</button>
+                <button class="btn btn-primary" onclick="nextStep()">Siguiente →</button>
+            </div>
+        </section>
+
+        <!-- PASO 7 -->
+        <section class="section" data-step="7">
+            <h2><span class="step-number">7</span> Checklist Final</h2>
+
+            <p>Antes de generar en Suno, verifica que cumples TODOS estos puntos:</p>
+
+            <ul class="checklist">
+                <li onclick="toggleCheck(this)">
+                    <div class="checkbox"></div>
+                    <span>He copiado el prompt de <strong>Lyrics</strong> con estructura [Intro], [Verse], [break], [Outro]</span>
+                </li>
+                <li onclick="toggleCheck(this)">
+                    <div class="checkbox"></div>
+                    <span>He copiado el prompt de <strong>Style</strong> con keywords de rareza (lo-fi, finger noise, etc.)</span>
+                </li>
+                <li onclick="toggleCheck(this)">
+                    <div class="checkbox"></div>
+                    <span>Incluí <strong>referencias de artistas</strong> (Elliott Smith, José González)</span>
+                </li>
+                <li onclick="toggleCheck(this)">
+                    <div class="checkbox"></div>
+                    <span>Especifiqué <strong>estabilidad de acordes</strong> ("static harmony", "no chord changes")</span>
+                </li>
+                <li onclick="toggleCheck(this)">
+                    <div class="checkbox"></div>
+                    <span>Agregué keywords para <strong>voz raspada</strong> ("gritty rasp", "hoarse")</span>
+                </li>
+                <li onclick="toggleCheck(this)">
+                    <div class="checkbox"></div>
+                    <span>Marqué claramente la <strong>parte en español</strong> como [spoken Chilean Spanish]</span>
+                </li>
+                <li onclick="toggleCheck(this)">
+                    <div class="checkbox"></div>
+                    <span><strong>NO</strong> puse acordes musicales en el campo Lyrics</span>
+                </li>
+                <li onclick="toggleCheck(this)">
+                    <div class="checkbox"></div>
+                    <span>Especifiqué <strong>técnica percusiva</strong> ("palm mute backbeat", "percussive strumming")</span>
+                </li>
+                <li onclick="toggleCheck(this)">
+                    <div class="checkbox"></div>
+                    <span>Configuré duración inicial <strong>corta</strong> (30 segundos) para testear</span>
+                </li>
+                <li onclick="toggleCheck(this)">
+                    <div class="checkbox"></div>
+                    <span>Tengo plan de generar <strong>4-5 versiones</strong> para comparar</span>
+                </li>
+            </ul>
+
+            <div class="success-box" style="margin-top: 30px;">
+                <div class="box-title">🎯 Resultado Esperado</div>
+                <p>Si seguiste todos los pasos, deberías obtener:</p>
+                <ul>
+                    <li>✅ Acordes Em mantenidos sin modulaciones</li>
+                    <li>✅ Voz masculina con rasp y textura cruda</li>
+                    <li>✅ Guitarra acústica percusiva con palm mutes audibles</li>
+                    <li>✅ Calidad lo-fi con finger noise y string buzz</li>
+                    <li>✅ Parte hablada en español chileno natural</li>
+                    <li>✅ Producción cruda tipo "workshop recording"</li>
+                </ul>
+            </div>
+
+            <div class="nav-buttons">
+                <button class="btn btn-secondary" onclick="prevStep()">← Anterior</button>
+                <button class="btn btn-primary" onclick="nextStep()">Siguiente →</button>
+            </div>
+        </section>
+
+        <!-- PASO 8 -->
+        <section class="section" data-step="8">
+            <h2><span class="step-number">8</span> Troubleshooting (Solución de Problemas)</h2>
+
+            <h3>Problema 1: Suno Cambia los Acordes</h3>
+            <div class="warning-box">
+                <div class="box-title">🔧 Soluciones</div>
+                <ol>
+                    <li><strong>Duplica keywords de estabilidad:</strong>
+                        <div class="code-box" style="margin-top: 10px;">
+                            <div class="code-content">static harmony, no chord changes, anchored in E minor, single chord drone, no modulation, E minor throughout, no key change, repetitive harmonic pattern</div>
+                        </div>
+                    </li>
+                    <li><strong>Reduce duración inicial a 15-20 segundos</strong></li>
+                    <li><strong>Usa "Extend" en vez de regenerar completo</strong></li>
+                    <li><strong>Agrega en Style:</strong> <code>monotonic harmony, one-chord composition</code></li>
+                </ol>
+            </div>
+
+            <h3>Problema 2: Voz Demasiado Limpia</h3>
+            <div class="warning-box">
+                <div class="box-title">🔧 Soluciones</div>
+                <ol>
+                    <li><strong>Intensifica keywords vocales:</strong>
+                        <div class="code-box" style="margin-top: 10px;">
+                            <div class="code-content">extremely gritty rasp, hoarse scratchy vocal, cigarette rasp, vocal fry, breathy strained voice, raw unprocessed vocal, throat texture, gravelly voice</div>
+                        </div>
+                    </li>
+                    <li><strong>Agrega referencia:</strong> <code>Tom Waits rasp</code> o <code>early Kurt Cobain vocal texture</code></li>
+                    <li><strong>En Lyrics, marca:</strong> <code>[raw gritty vocal - no vocal tuning]</code></li>
+                </ol>
+            </div>
+
+            <h3>Problema 3: Audio Demasiado Pulido</h3>
+            <div class="warning-box">
+                <div class="box-title">🔧 Soluciones</div>
+                <ol>
+                    <li><strong>Extrema las keywords lo-fi:</strong>
+                        <div class="code-box" style="margin-top: 10px;">
+                            <div class="code-content">cassette tape recording, 4-track quality, tape hiss, analog warmth, bedroom recording, zero studio processing, no compression, no EQ, raw signal chain, direct to tape</div>
+                        </div>
+                    </li>
+                    <li><strong>Agrega imperfecciones específicas:</strong> <code>slight tuning drift, natural timing imperfections, human groove</code></li>
+                </ol>
+            </div>
+
+            <h3>Problema 4: Pierde el Español</h3>
+            <div class="warning-box">
+                <div class="box-title">🔧 Soluciones</div>
+                <ol>
+                    <li><strong>En Lyrics, sé MÁS explícito:</strong>
+                        <div class="code-box" style="margin-top: 10px;">
+                            <div class="code-content">[break - guitar stops]
+[spoken word - native Chilean Spanish - casual street talk - no translation]
+Esa es la nota pues huevón
+Pero me la deja media menor
+Pero igual suena taquilla la huevada
+[keep original Spanish pronunciation]</div>
+                        </div>
+                    </li>
+                    <li><strong>En Style agrega:</strong> <code>Chilean Spanish interlude, Latin American accent, conversational Spanish, no English</code></li>
+                </ol>
+            </div>
+
+            <h3>Problema 5: Agrega Instrumentos No Deseados</h3>
+            <div class="warning-box">
+                <div class="box-title">🔧 Soluciones</div>
+                <ol>
+                    <li><strong>Especifica exclusividad:</strong>
+                        <div class="code-box" style="margin-top: 10px;">
+                            <div class="code-content">ONLY steel-string acoustic guitar, solo guitar instrumental, no bass, no drums, no percussion, no backing instruments, single guitar track, one instrument only, voice and guitar only</div>
+                        </div>
+                    </li>
+                    <li><strong>En Lyrics:</strong> <code>[solo acoustic guitar - no other instruments]</code></li>
+                </ol>
+            </div>
+
+            <div class="info-box" style="margin-top: 30px;">
+                <div class="box-title">💡 Tip de Emergencia</div>
+                <p>Si después de 5-6 intentos no logras el resultado, intenta:</p>
+                <ol>
+                    <li>Dividir la canción en 2-3 segmentos de 20 segundos</li>
+                    <li>Generar cada segmento por separado con prompts ultra-específicos</li>
+                    <li>Usar la función "Extend" para unirlos manteniendo coherencia</li>
+                </ol>
+            </div>
+
+            <div class="nav-buttons">
+                <button class="btn btn-secondary" onclick="prevStep()">← Anterior</button>
+                <button class="btn btn-primary" onclick="nextStep()">Finalizar ✓</button>
+            </div>
+        </section>
+
+        <!-- PASO 9 - RESUMEN -->
+        <section class="section" data-step="9">
+            <h2><span class="step-number">✓</span> Resumen Ejecutivo</h2>
+
+            <div class="success-box">
+                <div class="box-title">🎯 Los 3 Pilares del Éxito</div>
+                <h3 style="border: none; padding: 0; margin-top: 20px;">1. Especificidad Técnica</h3>
+                <p>No digas "guitarra acústica", di: <em>"steel-string acoustic guitar with percussive strumming and palm mute backbeat simulation"</em></p>
+
+                <h3 style="border: none; padding: 0; margin-top: 20px;">2. Redundancia Estratégica</h3>
+                <p>Repite conceptos clave de diferentes formas: "lo-fi recording, minimal processing, workshop aesthetic, raw unpolished"</p>
+
+                <h3 style="border: none; padding: 0; margin-top: 20px;">3. Anclaje con Referencias</h3>
+                <p>2-3 artistas específicos valen más que 50 keywords genéricas</p>
+            </div>
+
+            <h3>Template Rápido (Copia y Adapta)</h3>
+            
+            <div class="code-box">
+                <div class="code-label">LYRICS - Template Base</div>
+                <div class="code-content">[Intro]
+[descripción instrumental específica]
+
+[Verse]
+[tipo de voz específico]
+Letra línea 1
+Letra línea 2
+
+[break]
+[cambio dinámico]
+[idioma y estilo si aplica]
+Parte hablada o lírica diferente
+
+[Outro]
+[cierre específico]</div>
+                <button class="copy-btn" onclick="copyToClipboard(this)">Copiar Template</button>
+            </div>
+
+            <div class="code-box">
+                <div class="code-label">STYLE - Template Base</div>
+                <div class="code-content">[género principal], [instrumentación específica], [técnica instrumental], [calidad vocal específica], [acordes/armonía], [tempo] BPM, [calidad de producción], [keywords de rareza], [referencia artista 1], [referencia artista 2], [elementos culturales/idioma], [estética de grabación]</div>
+                <button class="copy-btn" onclick="copyToClipboard(this)">Copiar Template</button>
+            </div>
+
+            <h3>Keywords Esenciales por Categoría</h3>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-top: 20px;">
+                <div class="info-box">
+                    <div class="box-title">🎸 Guitarra Cruda</div>
+                    <code>steel-string acoustic, percussive strumming, palm mute, finger noise, string buzz, workshop recording</code>
+                </div>
+
+                <div class="info-box">
+                    <div class="box-title">🎤 Voz Raspada</div>
+                    <code>gritty rasp, hoarse vocal, scratchy throat, raw unpolished, breathy, vocal texture</code>
+                </div>
+
+                <div class="info-box">
+                    <div class="box-title">🎚️ Producción Lo-Fi</div>
+                    <code>lo-fi recording, minimal processing, room ambience, intimate, bedroom recording, no compression</code>
+                </div>
+
+                <div class="info-box">
+                    <div class="box-title">🎵 Acordes Estables</div>
+                    <code>static harmony, no chord changes, single chord, anchored in [key], no modulation</code>
+                </div>
+            </div>
+
+            <h3>Flujo de Trabajo Recomendado</h3>
+            <ol style="font-size: 1.1rem; line-height: 1.8;">
+                <li>📝 Prepara prompts completos (Lyrics + Style)</li>
+                <li>⏱️ Primera generación: 30 segundos para testear</li>
+                <li>🔄 Genera 4-5 versiones, compara resultados</li>
+                <li>✨ Identifica la mejor versión</li>
+                <li>➡️ Usa "Extend" desde esa versión</li>
+                <li>🔧 Si falla, ajusta keywords según troubleshooting</li>
+                <li>🎯 Repite hasta lograr el resultado deseado</li>
+            </ol>
+
+            <div class="success-box" style="margin-top: 30px;">
+                <div class="box-title">🚀 ¡Estás Listo!</div>
+                <p>Ahora tienes todas las herramientas para lograr que Suno mantenga tu sonido exacto. Recuerda:</p>
+                <ul>
+                    <li><strong>Paciencia:</strong> Puede tomar 3-6 intentos conseguir el resultado perfecto</li>
+                    <li><strong>Iteración:</strong> Cada intento te acerca más al objetivo</li>
+                    <li><strong>Documentación:</strong> Guarda las versiones que funcionan para reutilizar prompts</li>
+                </ul>
+            </div>
+
+            <div class="nav-buttons">
+                <button class="btn btn-secondary" onclick="prevStep()">← Anterior</button>
+                <button class="btn btn-primary" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">↑ Volver al Inicio</button>
+            </div>
+        </section>
+    </div>
+
+    <footer style="text-align: center; padding: 40px 20px; color: var(--text-secondary); border-top: 1px solid var(--border-color); margin-top: 60px;">
+        <p>Guía creada para optimización de prompts en Suno AI</p>
+        <p style="margin-top: 10px; font-size: 0.9rem;">Versión 1.0 - Acoustic Rock Crudo & Lo-Fi</p>
+    </footer>
+
+    <script>
+        let currentStep = 1;
+        const totalSteps = 9;
+
+        // Initialize progress navigation
+        function initProgressNav() {
+            const nav = document.getElementById('progressNav');
+            for (let i = 1; i <= totalSteps; i++) {
+                const indicator = document.createElement('div');
+                indicator.className = 'step-indicator';
+                if (i === 1) indicator.classList.add('active');
+                indicator.textContent = i;
+                indicator.onclick = () => goToStep(i);
+                nav.appendChild(indicator);
+            }
+        }
+
+        function goToStep(step) {
+            if (step < 1 || step > totalSteps) return;
+            
+            // Hide current section
+            document.querySelector('.section.active').classList.remove('active');
+            
+            // Show new section
+            document.querySelector(`.section[data-step="${step}"]`).classList.add('active');
+            
+            // Update progress indicators
+            document.querySelectorAll('.step-indicator').forEach((indicator, index) => {
+                if (index + 1 === step) {
+                    indicator.classList.add('active');
+                } else {
+                    indicator.classList.remove('active');
+                }
+            });
+            
+            currentStep = step;
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+
+        function nextStep() {
+            if (currentStep < totalSteps) {
+                goToStep(currentStep + 1);
+            }
+        }
+
+        function prevStep() {
+            if (currentStep > 1) {
+                goToStep(currentStep - 1);
+            }
+        }
+
+        function copyToClipboard(button) {
+            const codeBox = button.previousElementSibling;
+            const text = codeBox.textContent;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                const originalText = button.textContent;
+                button.textContent = '✓ Copiado!';
+                button.style.background = 'var(--accent-success)';
+                
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.style.background = 'var(--accent-primary)';
+                }, 2000);
+            });
+        }
+
+        function toggleCheck(item) {
+            item.classList.toggle('checked');
+        }
+
+        // Initialize on page load
+        initProgressNav();
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') nextStep();
+            if (e.key === 'ArrowLeft') prevStep();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ArmonIA Hub | AIWIS Music</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Fuentes Google -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Iconos Phosphor -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { 
+                        sans: ['Inter', 'sans-serif'], 
+                        display: ['Outfit', 'sans-serif'], 
+                        mono: ['JetBrains Mono', 'monospace'] 
+                    },
+                    colors: {
+                        baseBg: '#050505',
+                        surfaceBg: '#111111',
+                        cardBg: '#18181A',
+                        primary: '#EC4899',   /* Rosa Suno */
+                        secondary: '#8B5CF6', /* Violeta */
+                        cyan: '#06B6D4',      /* Cyan ArmonIA */
+                        daw: '#3B82F6',       /* Azul DAW */
+                        suno: '#10B981',      /* Verde Suno */
+                        warning: '#F59E0B',   /* Ambar Alerta */
+                        muted: '#94A3B8'
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.4s ease-out forwards',
+                        'slide-in': 'slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards',
+                    },
+                    keyframes: {
+                        fadeIn: { '0%': { opacity: '0', transform: 'translateY(15px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
+                        slideIn: { '0%': { opacity: '0', transform: 'translateX(-20px)' }, '100%': { opacity: '1', transform: 'translateX(0)' } }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* FORZAR FONDO OSCURO SIEMPRE */
+        body, html { 
+            background-color: #050505 !important; 
+            color: #F8FAFC !important; 
+            overflow: hidden; 
+        }
+        
+        /* Efecto de Luces de fondo sutiles */
+        .bg-glow {
+            background-image: 
+                radial-gradient(circle at 15% 20%, rgba(139, 92, 246, 0.1) 0%, transparent 40%),
+                radial-gradient(circle at 85% 80%, rgba(236, 72, 153, 0.1) 0%, transparent 40%);
+            background-attachment: fixed;
+        }
+
+        .glass-panel { 
+            background: rgba(17, 17, 17, 0.8); 
+            backdrop-filter: blur(20px); 
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+        }
+        
+        .glass-card { 
+            background: #111111; 
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+            transition: all 0.3s ease; 
+        }
+        .glass-card:hover { 
+            border-color: rgba(255, 255, 255, 0.2); 
+            transform: translateY(-2px); 
+        }
+
+        /* Scrollbars Custom */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #050505; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #8B5CF6; }
+
+        /* Vistas Ocultas/Visibles */
+        .view-panel, .wf-panel { display: none; }
+        .view-panel.active-flex { display: flex; animation: fadeIn 0.4s ease forwards; }
+        .wf-panel.active-block { display: block; animation: slideIn 0.4s ease forwards; }
+
+        /* Waveform Falsa (CSS Puro) para evitar cargar imagenes que se rompen */
+        .fake-waveform {
+            background: repeating-linear-gradient(90deg, #10B981 0px, #10B981 2px, transparent 2px, transparent 4px);
+            mask-image: url('data:image/svg+xml;utf8,<svg preserveAspectRatio="none" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M0,50 Q10,10 20,50 T40,50 T60,50 T80,50 T100,50 L100,100 L0,100 Z" fill="black"/></svg>');
+            -webkit-mask-image: url('data:image/svg+xml;utf8,<svg preserveAspectRatio="none" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M0,50 Q5,20 10,50 T20,50 T30,50 T40,50 T50,50 T60,50 T70,50 T80,50 T90,50 T100,50 L100,100 L0,100 Z" fill="black"/></svg>');
+            -webkit-mask-size: 100% 100%;
+        }
+    </style>
+</head>
+<body class="flex flex-col h-screen font-sans bg-glow">
+
+    <!-- 1. BARRA DE NAVEGACIÓN SUPERIOR -->
+    <nav class="h-16 glass-panel z-50 flex items-center justify-between px-6 shrink-0 shadow-lg">
+        <div class="flex items-center gap-8">
+            <div class="flex items-center gap-3 cursor-pointer" onclick="switchView('home')">
+                <div class="w-8 h-8 rounded bg-gradient-to-br from-secondary to-primary flex items-center justify-center shadow-[0_0_15px_rgba(139,92,246,0.6)]">
+                    <i class="ph-bold ph-waveform text-white"></i>
+                </div>
+                <span class="font-display font-extrabold text-xl tracking-wide text-white">ArmonIA <sup class="text-[10px] text-primary">v17 POC</sup></span>
+            </div>
+
+            <!-- Botones Nav -->
+            <div class="hidden lg:flex bg-[#0A0A0A] rounded-full p-1.5 border border-white/10 shadow-inner">
+                <button onclick="switchView('home')" id="nav-home" class="nav-btn px-5 py-1.5 rounded-full text-sm font-bold transition-all text-slate-400 hover:text-white flex items-center gap-2"><i class="ph-fill ph-house"></i> Inicio</button>
+                <button onclick="switchView('arch')" id="nav-arch" class="nav-btn px-5 py-1.5 rounded-full text-sm font-bold transition-all text-slate-400 hover:text-white flex items-center gap-2"><i class="ph-fill ph-projector-screen-chart"></i> Arquitectura</button>
+                <button onclick="switchView('workflow')" id="nav-workflow" class="nav-btn px-5 py-1.5 rounded-full text-sm font-bold transition-all text-slate-400 hover:text-white flex items-center gap-2"><i class="ph-fill ph-git-branch"></i> Método Híbrido (DAW+IA)</button>
+                <button onclick="switchView('dev')" id="nav-dev" class="nav-btn px-5 py-1.5 rounded-full text-sm font-bold transition-all text-slate-400 hover:text-white flex items-center gap-2"><i class="ph-fill ph-translate"></i> IA Fonética & JSON</button>
+                <button onclick="switchView('rules')" id="nav-rules" class="nav-btn px-5 py-1.5 rounded-full text-sm font-bold transition-all text-slate-400 hover:text-white flex items-center gap-2"><i class="ph-fill ph-warning-circle"></i> Reglas Suno</button>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-4">
+            <div class="text-xs text-right hidden md:block">
+                <p class="text-white font-bold tracking-wide">Armin C.</p>
+                <p class="text-cyan font-mono text-[10px]">AIWIS Director</p>
+            </div>
+            <div class="w-10 h-10 rounded-full border-2 border-cyan/50 bg-[#111] flex items-center justify-center overflow-hidden">
+                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Armin" alt="User" class="w-full h-full object-cover">
+            </div>
+        </div>
+    </nav>
+
+    <!-- 2. CONTENEDOR DE VISTAS PRINCIPALES -->
+    <main class="flex-1 overflow-hidden relative w-full h-full">
+
+        <!-- ===================================================================
+             VISTA A: HOME (DASHBOARD INICIAL)
+             =================================================================== -->
+        <div id="view-home" class="view-panel active-flex flex-col h-full overflow-y-auto w-full">
+            <div class="max-w-7xl mx-auto p-8 w-full flex-1 flex flex-col justify-center">
+                <div class="w-full h-[550px] rounded-[2rem] flex flex-col items-center justify-center border border-white/10 relative overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.8)]" style="background: linear-gradient(to bottom, rgba(5,5,5,0.7), rgba(5,5,5,0.95)), url('https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=2070&auto=format&fit=crop') center/cover;">
+                    <div class="absolute top-8 flex items-center gap-3 bg-black/80 backdrop-blur-md px-5 py-2 rounded-full border border-white/10 shadow-lg">
+                        <span class="w-2.5 h-2.5 rounded-full bg-suno animate-pulse"></span>
+                        <span class="text-xs font-mono text-white tracking-widest font-bold">ENTORNO SEGURO - DARK MODE</span>
+                    </div>
+                    
+                    <h1 class="font-display font-black text-7xl md:text-9xl tracking-tighter text-white mb-6 drop-shadow-2xl">Armon<span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">IA</span></h1>
+                    <p class="text-lg md:text-xl text-slate-300 mb-10 font-medium tracking-wide text-center max-w-3xl">La interfaz maestra que traduce la Ingeniería de Audio analógica al lenguaje de los Modelos Generativos (Suno / LLMs).</p>
+                    
+                    <div class="flex flex-wrap justify-center gap-5 z-10">
+                        <button onclick="switchView('workflow')" class="bg-white text-black px-8 py-4 rounded-xl font-bold text-sm flex items-center gap-3 hover:scale-105 transition-transform shadow-[0_0_20px_rgba(255,255,255,0.2)]">
+                            <i class="ph-fill ph-music-notes-simple text-xl"></i> Iniciar Flujo Híbrido (DAW + Suno)
+                        </button>
+                        <button onclick="switchView('dev')" class="bg-[#18181A] border border-white/20 text-white px-8 py-4 rounded-xl font-bold text-sm flex items-center gap-3 hover:bg-white/10 transition-colors shadow-lg">
+                            <i class="ph-fill ph-translate text-xl"></i> Hub de Hackeo Fonético
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===================================================================
+             VISTA B: ARQUITECTURA GLOBAL (LOS 3 MUNDOS)
+             =================================================================== -->
+        <div id="view-arch" class="view-panel hidden flex-col h-full overflow-y-auto w-full">
+            <div class="max-w-7xl mx-auto p-8 mt-8 pb-24">
+                <div class="text-center mb-16">
+                    <h1 class="text-5xl font-display font-black text-white mb-4">El Ecosistema <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan to-daw">Global</span></h1>
+                    <p class="text-lg text-muted max-w-3xl mx-auto font-medium">Desde la generación básica en Suno, hasta el control biométrico híbrido para Productores A&R.</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
+                    <!-- Nivel 1 -->
+                    <div class="glass-card p-8 rounded-3xl border-t-4 border-t-slate-600 h-full flex flex-col">
+                        <h3 class="text-2xl font-black text-white mb-3 flex items-center gap-2"><i class="ph-fill ph-robot text-slate-400"></i> 1. 100% Suno</h3>
+                        <p class="text-sm text-slate-400 mb-6 flex-1">Nivel Amateur. Uso de Suno Web para crear pistas mediante prompts de texto. Sin intervención musical humana.</p>
+                        <div class="bg-[#0A0A0B] p-5 rounded-xl border border-white/10 space-y-3 text-sm text-white font-bold">
+                            <div class="flex items-center gap-3"><i class="ph-bold ph-check text-slate-500"></i> Text-to-Music</div>
+                            <div class="flex items-center gap-3"><i class="ph-bold ph-check text-slate-500"></i> Masterización Automática</div>
+                            <div class="flex items-center gap-3 text-slate-500"><i class="ph-bold ph-x text-red-500"></i> Sin control de mezcla</div>
+                        </div>
+                    </div>
+
+                    <!-- Nivel 2 -->
+                    <div class="glass-card p-8 rounded-3xl border-t-4 border-t-cyan h-full flex flex-col">
+                        <h3 class="text-2xl font-black text-white mb-3 flex items-center gap-2"><i class="ph-fill ph-magic-wand text-cyan"></i> 2. Suno + ArmonIA</h3>
+                        <p class="text-sm text-slate-400 mb-6 flex-1">Nivel Medio. Usamos Suno como motor, pero ArmonIA inyecta prompts fonéticos perfectos y organiza los archivos.</p>
+                        <div class="bg-[#0A0A0B] p-5 rounded-xl border border-white/10 space-y-3 text-sm text-white font-bold">
+                            <div class="flex items-center gap-3"><i class="ph-bold ph-arrow-right text-cyan text-lg"></i> Hackeo Fonético (LLMs)</div>
+                            <div class="flex items-center gap-3"><i class="ph-bold ph-arrow-right text-cyan text-lg"></i> Técnicas Mashup / Inspo</div>
+                            <div class="flex items-center gap-3"><i class="ph-bold ph-arrow-right text-cyan text-lg"></i> Nomenclatura DB (Drive)</div>
+                        </div>
+                    </div>
+
+                    <!-- Nivel 3 (The POC) -->
+                    <div class="glass-card p-8 rounded-3xl border-t-4 border-t-primary shadow-[0_0_50px_rgba(236,72,153,0.2)] transform md:scale-105 z-10 h-full flex flex-col relative border border-primary/20">
+                        <div class="absolute top-4 right-4 bg-primary/20 text-primary text-[10px] font-black px-3 py-1 rounded tracking-widest border border-primary/40">EL MÉTODO MAESTRO</div>
+                        <h3 class="text-2xl font-black text-white mb-3 flex items-center gap-2 mt-4"><i class="ph-fill ph-faders text-primary"></i> 3. Híbrido Total</h3>
+                        <p class="text-sm text-slate-300 mb-6 flex-1 font-medium">El estándar AIWIS A&R. Un puente ida y vuelta entre el DAW (Humano) y Suno (Máquina). Precisión de estudio al milímetro.</p>
+                        <div class="bg-[#0A0A0B] p-5 rounded-xl border border-primary/30 space-y-3 text-sm text-white font-bold">
+                            <div class="flex items-center gap-3"><i class="ph-fill ph-check-circle text-primary text-xl"></i> Pre-Vuelo DAW (Cortes 0:00)</div>
+                            <div class="flex items-center gap-3"><i class="ph-fill ph-check-circle text-primary text-xl"></i> Extracción de Stems & Inspo IA</div>
+                            <div class="flex items-center gap-3"><i class="ph-fill ph-check-circle text-primary text-xl"></i> Voice Clone (Modelo Biométrico)</div>
+                            <div class="flex items-center gap-3"><i class="ph-fill ph-check-circle text-primary text-xl"></i> Vocal Comping & Bus Glue (DAW)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===================================================================
+             VISTA C: WORKFLOW GUIADO (SIDEBAR + CONTENIDO)
+             =================================================================== -->
+        <div id="view-workflow" class="view-panel hidden h-full w-full">
+            <div class="flex w-full h-full">
+                
+                <!-- SIDEBAR PASOS -->
+                <div class="w-80 bg-[#0A0A0B] border-r border-white/10 flex flex-col h-full shrink-0 z-20 overflow-y-auto shadow-2xl">
+                    <div class="p-6">
+                        <p class="text-xs font-black text-primary uppercase tracking-widest mb-6">Pipeline Híbrido</p>
+                        
+                        <div class="space-y-2 relative before:absolute before:inset-0 before:ml-[28px] before:-translate-x-px before:h-full before:w-0.5 before:bg-[#222]">
+                            
+                            <button onclick="openWf('wf0')" id="btn-wf0" class="wf-btn w-full flex items-start gap-4 text-left p-3 rounded-xl hover:bg-white/5 relative z-10 group">
+                                <div class="w-10 h-10 shrink-0 rounded-full bg-[#111] border border-slate-600 text-slate-500 flex items-center justify-center font-bold text-sm transition-colors group-[.active]:bg-white group-[.active]:text-black group-[.active]:border-white shadow-lg">0</div>
+                                <div><p class="text-sm font-bold text-slate-500 group-[.active]:text-white">El Caso (A&R)</p><p class="text-[11px] text-slate-600 group-[.active]:text-slate-400 font-medium">Contexto inicial</p></div>
+                            </button>
+                            
+                            <button onclick="openWf('wf1')" id="btn-wf1" class="wf-btn w-full flex items-start gap-4 text-left p-3 rounded-xl hover:bg-white/5 relative z-10 group transition-all">
+                                <div class="w-10 h-10 shrink-0 rounded-full bg-[#111] border border-slate-600 text-slate-500 flex items-center justify-center font-bold text-sm transition-colors group-[.active]:bg-daw group-[.active]:text-white group-[.active]:border-daw shadow-lg">1</div>
+                                <div><p class="text-sm font-bold text-slate-500 group-[.active]:text-daw transition-colors">DAW: Pre-Vuelo</p><p class="text-[11px] text-slate-600 group-[.active]:text-slate-400 font-medium">Corte 0:00 & Limpieza</p></div>
+                            </button>
+
+                            <button onclick="openWf('wf2')" id="btn-wf2" class="wf-btn w-full flex items-start gap-4 text-left p-3 rounded-xl hover:bg-white/5 relative z-10 group transition-all">
+                                <div class="w-10 h-10 shrink-0 rounded-full bg-[#111] border border-slate-600 text-slate-500 flex items-center justify-center font-bold text-sm transition-colors group-[.active]:bg-suno group-[.active]:text-black group-[.active]:border-suno shadow-lg">2</div>
+                                <div><p class="text-sm font-bold text-slate-500 group-[.active]:text-suno transition-colors">Suno Studio & Stems</p><p class="text-[11px] text-slate-600 group-[.active]:text-slate-400 font-medium">Ajuste Beat e Isolación</p></div>
+                            </button>
+
+                            <button onclick="openWf('wf3')" id="btn-wf3" class="wf-btn w-full flex items-start gap-4 text-left p-3 rounded-xl hover:bg-white/5 relative z-10 group transition-all">
+                                <div class="w-10 h-10 shrink-0 rounded-full bg-[#111] border border-slate-600 text-slate-500 flex items-center justify-center font-bold text-sm transition-colors group-[.active]:bg-secondary group-[.active]:text-white group-[.active]:border-secondary shadow-lg">3</div>
+                                <div><p class="text-sm font-bold text-slate-500 group-[.active]:text-secondary transition-colors">Mashup Iterativo</p><p class="text-[11px] text-slate-600 group-[.active]:text-slate-400 font-medium">Fusión Biológica + IA</p></div>
+                            </button>
+
+                            <button onclick="openWf('wf4')" id="btn-wf4" class="wf-btn w-full flex items-start gap-4 text-left p-3 rounded-xl hover:bg-white/5 relative z-10 group transition-all">
+                                <div class="w-10 h-10 shrink-0 rounded-full bg-[#111] border border-slate-600 text-slate-500 flex items-center justify-center font-bold text-sm transition-colors group-[.active]:bg-cyan group-[.active]:text-black group-[.active]:border-cyan shadow-lg">4</div>
+                                <div><p class="text-sm font-bold text-slate-500 group-[.active]:text-cyan transition-colors">Inspo (Multi-Capa)</p><p class="text-[11px] text-slate-600 group-[.active]:text-slate-400 font-medium">Collage de Color Vocal</p></div>
+                            </button>
+
+                            <button onclick="openWf('wf5')" id="btn-wf5" class="wf-btn w-full flex items-start gap-4 text-left p-3 rounded-xl hover:bg-white/5 relative z-10 group transition-all">
+                                <div class="w-10 h-10 shrink-0 rounded-full bg-[#111] border border-slate-600 text-slate-500 flex items-center justify-center font-bold text-sm transition-colors group-[.active]:bg-primary group-[.active]:text-white group-[.active]:border-primary shadow-lg">5</div>
+                                <div><p class="text-sm font-bold text-slate-500 group-[.active]:text-primary transition-colors">Create Voice Clone</p><p class="text-[11px] text-slate-600 group-[.active]:text-slate-400 font-medium">Captura Biométrica Final</p></div>
+                            </button>
+
+                            <button onclick="openWf('wf6')" id="btn-wf6" class="wf-btn w-full flex items-start gap-4 text-left p-3 rounded-xl hover:bg-white/5 relative z-10 group transition-all">
+                                <div class="w-10 h-10 shrink-0 rounded-full bg-[#111] border border-slate-600 text-slate-500 flex items-center justify-center font-bold text-sm transition-colors group-[.active]:bg-daw group-[.active]:text-white group-[.active]:border-daw shadow-lg">6</div>
+                                <div><p class="text-sm font-bold text-slate-500 group-[.active]:text-daw transition-colors">Retorno al DAW</p><p class="text-[11px] text-slate-600 group-[.active]:text-slate-400 font-medium">Vocal Comping Master</p></div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ÁREA DE CONTENIDO WORKFLOW -->
+                <div class="flex-1 overflow-y-auto p-10 lg:p-14 pb-32 bg-base w-full relative">
+                    
+                    <!-- WF0: EL CASO -->
+                    <div id="wf0" class="wf-panel block max-w-5xl mx-auto">
+                        <span class="px-4 py-1.5 bg-[#18181A] text-white rounded-full text-[10px] font-black tracking-widest uppercase mb-6 inline-block border border-white/10 shadow-lg">Fase 0 - Origen</span>
+                        <h2 class="text-5xl font-display font-black text-white mb-8">El Requerimiento A&R</h2>
+                        
+                        <div class="glass-card p-10 rounded-[2rem] shadow-2xl">
+                            <div class="flex flex-col md:flex-row gap-8 mb-8">
+                                <div class="w-20 h-20 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center shrink-0 border border-blue-500/30"><i class="ph-fill ph-briefcase text-4xl"></i></div>
+                                <div>
+                                    <h3 class="text-2xl font-black text-white mb-3">Productor Musical vs Toma Deficiente</h3>
+                                    <p class="text-slate-300 text-base leading-relaxed mb-4">El productor está armando un track profesional. La cantante le envió audios de referencia grabados desde WhatsApp (audio sucio, ruido ambiental, desafinaciones). La cantante no puede asistir al estudio a regrabar las tomas malas.</p>
+                                    <div class="bg-[#0A0A0B] p-5 rounded-xl border-l-4 border-l-secondary shadow-inner border border-white/5">
+                                        <p class="text-white text-sm leading-relaxed font-medium">
+                                            <strong class="text-secondary uppercase tracking-widest text-xs">Misión AIWIS:</strong><br>
+                                            Crear un Clon Vocal IA (Voice Model) basado en el audio crudo. Generar "parches vocales" perfectos y fusionarlos en el DAW sin perder el acento latino neutro ni el color natural y orgánico de la artista.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <button onclick="openWf('wf1')" class="w-full bg-white text-black py-4 rounded-xl font-black text-base hover:bg-slate-300 transition-colors shadow-[0_0_20px_rgba(255,255,255,0.2)] flex items-center justify-center gap-3">
+                                Iniciar Preparación en DAW <i class="ph-bold ph-arrow-right text-xl"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- WF1: DAW PRE-VUELO -->
+                    <div id="wf1" class="wf-panel max-w-6xl mx-auto">
+                        <span class="px-4 py-1.5 bg-daw/20 text-daw border border-daw/50 rounded-full text-[10px] font-black tracking-widest uppercase mb-6 inline-block shadow-[0_0_15px_rgba(59,130,246,0.3)]">1. Mundo Analógico</span>
+                        <h2 class="text-5xl font-display font-black text-white mb-8">Pre-Vuelo: Corte Milimétrico en DAW</h2>
+                        
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                            <div class="space-y-6">
+                                <div class="glass-card p-8 rounded-2xl border-l-4 border-l-daw relative overflow-hidden">
+                                    <div class="absolute right-4 top-4 text-daw/10"><i class="ph-fill ph-scissors text-6xl"></i></div>
+                                    <h3 class="font-black text-white mb-3 text-xl relative z-10">La Regla Cero (0:00:00)</h3>
+                                    <p class="text-sm text-slate-300 mb-4 relative z-10 font-medium">Jamás subir la canción completa. Suno alucina en audios largos. Seleccionar solo la sección a corregir (ej: Coro).</p>
+                                    <div class="bg-[#0A0A0B] p-5 rounded-xl border border-white/5 text-sm relative z-10 shadow-inner">
+                                        <p class="text-daw font-black mb-2 flex items-center gap-2"><i class="ph-bold ph-check-circle text-lg"></i> El Secreto de la Exportación:</p>
+                                        <p class="text-slate-300 text-xs font-medium leading-relaxed">Selecciona el coro, pero exporta el WAV <strong>desde el inicio absoluto de la sesión (Minuto 0:00)</strong> incluyendo el silencio previo. Así, al re-importar el parche IA, la grilla calzará perfecta.</p>
+                                    </div>
+                                </div>
+
+                                <div class="glass-card p-8 rounded-2xl">
+                                    <h3 class="font-black text-white mb-4 text-xl flex items-center gap-2"><i class="ph-fill ph-list-checks text-daw"></i> Checklist Pre-Suno</h3>
+                                    <div class="space-y-3">
+                                        <label class="flex items-center gap-4 p-4 bg-[#0A0A0B] border border-white/5 rounded-xl cursor-pointer hover:border-daw/50 transition-colors">
+                                            <input type="checkbox" class="w-5 h-5 rounded text-daw bg-base border-slate-600 focus:ring-daw checklist-item"> <span class="text-sm font-bold text-white">Audio exportado con silencio desde 0:00</span>
+                                        </label>
+                                        <label class="flex items-center gap-4 p-4 bg-[#0A0A0B] border border-white/5 rounded-xl cursor-pointer hover:border-daw/50 transition-colors">
+                                            <input type="checkbox" class="w-5 h-5 rounded text-daw bg-base border-slate-600 focus:ring-daw checklist-item"> <span class="text-sm font-bold text-white">Afinación base (Melodyne) aplicada</span>
+                                        </label>
+                                        <label class="flex items-center gap-4 p-4 bg-[#0A0A0B] border border-white/5 rounded-xl cursor-pointer hover:border-daw/50 transition-colors">
+                                            <input type="checkbox" class="w-5 h-5 rounded text-daw bg-base border-slate-600 focus:ring-daw checklist-item"> <span class="text-sm font-bold text-white">Tesitura y BPM identificados</span>
+                                        </label>
+                                    </div>
+                                    <button id="btn-next-step1" onclick="openWf('wf2')" class="mt-6 w-full bg-[#18181A] border border-white/10 text-slate-500 py-4 rounded-xl font-black text-sm transition-all cursor-not-allowed flex items-center justify-center gap-2 shadow-inner" disabled>Aprobar Checklist para Avanzar <i class="ph-bold ph-lock text-lg"></i></button>
+                                </div>
+                            </div>
+                            
+                            <!-- Mockup Cubase Export -->
+                            <div class="bg-[#1C1C1E] border border-[#333] rounded-3xl p-6 shadow-[0_20px_50px_rgba(0,0,0,0.8)] flex flex-col h-full relative">
+                                <div class="absolute top-0 right-10 w-32 h-1 bg-daw rounded-b-md shadow-[0_0_20px_rgba(37,99,235,1)]"></div>
+                                <div class="text-xs font-black tracking-widest text-slate-500 mb-8 border-b border-[#333] pb-3 flex items-center gap-2"><i class="ph-bold ph-sliders-horizontal"></i> CUBASE PRO - EXPORT</div>
+                                
+                                <div class="flex h-16 mb-4 relative">
+                                    <div class="w-32 bg-[#111] text-[10px] text-white font-bold flex items-center px-4 border border-[#333] rounded-l-lg shadow-md z-10 uppercase tracking-widest">Pista_Total</div>
+                                    <div class="flex-1 bg-[#0A0A0A] p-1.5 flex gap-1 border-y border-r border-[#333] rounded-r-lg shadow-inner">
+                                        <div class="h-full bg-slate-600/80 rounded w-[30%]"></div>
+                                        <div class="h-full bg-slate-600/80 rounded w-[40%] border-x-2 border-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)]"></div>
+                                        <div class="h-full bg-slate-600/80 rounded w-[30%]"></div>
+                                    </div>
+                                </div>
+
+                                <div class="flex h-16">
+                                    <div class="w-32 bg-[#111] text-[10px] text-daw font-black flex items-center px-4 border border-[#333] rounded-l-lg shadow-md z-10 uppercase tracking-widest">Export_Coro</div>
+                                    <div class="flex-1 bg-[#0A0A0A] p-1.5 flex border-y border-r border-[#333] rounded-r-lg shadow-inner relative">
+                                        <div class="h-full bg-transparent border border-dashed border-slate-600 rounded w-[30%] flex items-center justify-center text-[10px] text-slate-500 font-bold uppercase tracking-widest">Silencio = Grilla</div>
+                                        <div class="h-full bg-daw/90 rounded w-[40%] flex items-center justify-center text-white text-xs font-bold shadow-[0_0_25px_rgba(37,99,235,0.6)] border border-blue-400">WAV Sección</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- WF2: SUNO STUDIO Y STEMS -->
+                    <div id="wf2" class="wf-panel max-w-7xl mx-auto">
+                        <span class="px-4 py-1.5 bg-suno/20 text-suno border border-suno/50 rounded-full text-[10px] font-black tracking-widest uppercase mb-6 inline-block shadow-[0_0_15px_rgba(16,185,129,0.3)]">2. IA Generativa</span>
+                        <h2 class="text-5xl font-display font-black text-white mb-8">Suno Studio & Extracción de Stems</h2>
+                        
+                        <div class="grid grid-cols-1 xl:grid-cols-2 gap-10">
+                            <div class="space-y-6">
+                                <p class="text-slate-300 text-base font-medium">En el entorno <i>Premium</i> de Suno aseguramos que la IA procese la métrica correcta y aislamos las pistas necesarias.</p>
+                                
+                                <div class="glass-card p-6 rounded-2xl border-l-4 border-l-suno">
+                                    <h3 class="font-black text-white mb-2 text-lg flex items-center gap-2"><i class="ph-fill ph-crop text-suno text-2xl"></i> Ajuste On-Beat (Suno Studio)</h3>
+                                    <p class="text-sm text-slate-300">Para máxima precisión rítmica, abrimos el clip en "Open in Studio". En el panel <strong>Clip Settings</strong>, cambiamos el Tempo a <span class="bg-suno/20 text-suno px-1.5 rounded font-bold">On Beat</span>.</p>
+                                </div>
+
+                                <div class="glass-card p-6 rounded-2xl border-l-4 border-l-cyan">
+                                    <h3 class="font-black text-white mb-2 text-lg flex items-center gap-2"><i class="ph-fill ph-arrows-split text-cyan text-2xl"></i> El Paso Crítico: Get Stems</h3>
+                                    <p class="text-sm text-slate-300 mb-4">Desde la librería, aplicamos <strong>Get Stems</strong> al audio subido. La Voz Aislada será la Capa Superior obligatoria para el Mashup.</p>
+                                    <button onclick="openWf('wf3')" class="bg-white text-black px-6 py-3 rounded-xl font-bold shadow-lg hover:bg-slate-200 transition-colors">Avanzar al Mashup <i class="ph-bold ph-arrow-right"></i></button>
+                                </div>
+                            </div>
+
+                            <!-- MOCKUP SUNO STUDIO -->
+                            <div class="bg-[#0A0A0A] rounded-3xl shadow-[0_0_60px_rgba(16,185,129,0.15)] flex flex-col h-[500px] overflow-hidden border border-[#222] relative">
+                                <!-- Top Bar -->
+                                <div class="bg-[#111111] border-b border-[#222] p-4 flex justify-between items-center shadow-md z-10">
+                                    <div class="flex items-center gap-2"><i class="ph-bold ph-waveform text-white text-xl"></i> <span class="text-white text-sm font-black tracking-widest uppercase">SUNO Studio</span></div>
+                                    <button class="bg-white/10 px-4 py-2 rounded-lg text-xs font-bold text-white hover:bg-white/20 transition-colors uppercase tracking-widest">Export</button>
+                                </div>
+                                
+                                <div class="flex flex-1 overflow-hidden">
+                                    <!-- Studio Left (Timeline) -->
+                                    <div class="flex-1 bg-[#050505] flex flex-col relative border-r border-[#222]">
+                                        <!-- Ruler -->
+                                        <div class="h-8 border-b border-[#222] flex items-end px-2 text-[10px] text-slate-600 font-mono font-bold">
+                                            <span class="ml-12">65</span><span class="ml-24">129</span><span class="ml-24">193</span>
+                                        </div>
+                                        <!-- Track Row -->
+                                        <div class="flex h-40 border-b border-[#222]">
+                                            <div class="w-40 bg-[#111] border-r border-[#222] p-3 flex flex-col justify-center shadow-xl z-10">
+                                                <div class="text-[10px] text-white font-black truncate flex items-center gap-2 uppercase tracking-wider"><i class="ph-fill ph-speaker-high text-suno text-lg"></i> MIX_VILDO</div>
+                                                <div class="bg-base border border-white/10 rounded mt-3 p-2 text-[9px] text-slate-500 font-bold flex justify-between uppercase">No Input <i class="ph-bold ph-caret-down"></i></div>
+                                            </div>
+                                            <div class="flex-1 relative p-3">
+                                                <!-- Waveform Green Block -->
+                                                <div class="absolute left-10 w-[240px] h-32 bg-suno/20 border border-suno rounded-xl group cursor-pointer overflow-hidden shadow-inner">
+                                                    <div class="absolute top-2 left-3 text-[10px] text-suno font-black">MIX_02_VILDO_CURSILLO</div>
+                                                    <div class="absolute inset-x-0 bottom-2 top-8 fake-waveform opacity-100"></div>
+                                                    
+                                                    <!-- Menu Flotante Cover -->
+                                                    <div class="absolute bottom-[-60px] left-1/2 transform -translate-x-1/2 bg-[#111] border border-white/20 rounded-full px-3 py-2 flex gap-3 shadow-2xl group-hover:bottom-3 transition-all duration-300 items-center">
+                                                        <button class="w-8 h-8 rounded-full hover:bg-white/10 text-white flex items-center justify-center"><i class="ph-bold ph-scissors text-base"></i></button>
+                                                        <div class="w-px h-5 bg-white/20"></div>
+                                                        <button class="px-4 h-8 rounded-full bg-gradient-to-r from-secondary to-cyan text-white text-[11px] font-black flex items-center gap-2 shadow-lg uppercase tracking-widest"><i class="ph-fill ph-sparkle text-base"></i> Cover</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Right Panel (Clip Settings) -->
+                                    <div class="w-64 bg-[#111] p-6 flex flex-col z-10 shadow-2xl">
+                                        <h4 class="text-xs text-white font-black uppercase mb-8 flex items-center justify-between tracking-widest">Clip Settings <div class="w-3 h-3 rounded-full bg-suno shadow-[0_0_15px_rgba(16,185,129,0.8)]"></div></h4>
+                                        
+                                        <div class="mb-8">
+                                            <label class="text-[10px] text-slate-400 font-black mb-3 block uppercase tracking-widest">Tempo</label>
+                                            <div class="bg-base border border-suno/50 text-white text-xs font-bold p-3 rounded-xl flex justify-between items-center cursor-pointer shadow-[0_0_15px_rgba(16,185,129,0.2)]">
+                                                On Beat <i class="ph-bold ph-caret-down text-slate-500"></i>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Menu Mockup Context -->
+                                        <div class="mt-auto bg-[#050505] border border-white/10 rounded-xl p-2 shadow-2xl">
+                                            <div class="px-3 py-2 text-[11px] text-white font-bold hover:bg-white/10 rounded cursor-pointer flex gap-3"><i class="ph-bold ph-music-note-plus text-slate-400 text-sm"></i> Create</div>
+                                            <div class="px-3 py-2 text-[11px] text-white font-black bg-white/10 rounded cursor-pointer flex justify-between items-center my-1"><span class="flex gap-3"><i class="ph-bold ph-waveform text-suno text-sm"></i> Get Stems</span><span class="bg-white/20 text-[9px] px-1.5 py-0.5 rounded text-white">Pro</span></div>
+                                            <div class="px-3 py-2 text-[11px] text-white font-bold hover:bg-white/10 rounded cursor-pointer flex gap-3"><i class="ph-bold ph-arrows-merge text-slate-400 text-sm"></i> Mashup</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- WF3: MASHUP -->
+                    <div id="wf3" class="wf-panel max-w-7xl mx-auto">
+                        <span class="px-4 py-1.5 bg-secondary/20 text-secondary border border-secondary/50 rounded-full text-[10px] font-black tracking-widest uppercase mb-6 inline-block shadow-[0_0_15px_rgba(139,92,246,0.3)]">3. El Núcleo Híbrido</span>
+                        <h2 class="text-5xl font-display font-black text-white mb-8">El Mashup Iterativo</h2>
+                        
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                            <div class="space-y-6">
+                                <div class="glass-card p-8 rounded-3xl border-t-4 border-t-secondary">
+                                    <h3 class="text-2xl font-black text-white mb-4">Arquitectura de Capas</h3>
+                                    <p class="text-sm text-slate-300 mb-6 font-medium leading-relaxed">Obligamos a Suno a fusionar la biología (Voz Real) con el silicio (Voz IA). Esta superposición fuerza a la red neuronal a respetar el timbre de arriba y la afinación de abajo.</p>
+                                    
+                                    <div class="bg-[#050505] p-5 rounded-2xl border border-white/10 space-y-4 shadow-inner relative">
+                                        <div class="absolute left-7 top-8 bottom-8 w-0.5 bg-slate-700 z-0"></div>
+                                        
+                                        <div class="flex items-center gap-5 relative z-10 bg-[#111] p-4 rounded-xl border border-primary/30 shadow-lg">
+                                            <div class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center shrink-0 border border-primary/50"><i class="ph-fill ph-user text-primary text-xl"></i></div>
+                                            <div><p class="text-xs font-black text-white uppercase tracking-wider">Capa 1 (Arriba)</p><p class="text-[11px] text-slate-400 font-medium mt-1">Humana Aislada (Stem). Da el color.</p></div>
+                                        </div>
+                                        
+                                        <div class="flex items-center gap-5 relative z-10 bg-[#111] p-4 rounded-xl border border-cyan/30 shadow-lg">
+                                            <div class="w-10 h-10 rounded-full bg-cyan/20 flex items-center justify-center shrink-0 border border-cyan/50"><i class="ph-fill ph-robot text-cyan text-xl"></i></div>
+                                            <div><p class="text-xs font-black text-white uppercase tracking-wider">Capa 2 (Abajo)</p><p class="text-[11px] text-slate-400 font-medium mt-1">IA Referencia. Da métrica y dicción.</p></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="bg-gradient-to-r from-secondary/20 to-transparent border border-secondary/40 p-6 rounded-2xl text-sm text-slate-200 flex items-start gap-4">
+                                    <i class="ph-bold ph-arrows-clockwise text-secondary text-3xl mt-1"></i>
+                                    <div>
+                                        <strong class="text-white text-base block mb-1">El Loop Iterativo:</strong>
+                                        <span class="font-medium text-slate-300 leading-relaxed">Extrae los Stems del resultado del Mashup, y vuelve a fusionar esa nueva voz como "Capa 2" contra la "Capa 1" original. Iterar hasta alcanzar la perfección.</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- MOCKUP MASHUP -->
+                            <div class="bg-[#0A0A0A] border border-[#222] rounded-3xl shadow-[0_0_50px_rgba(139,92,246,0.15)] p-8 relative flex flex-col">
+                                <div class="flex gap-6 border-b border-white/10 pb-4 mb-8">
+                                    <span class="text-slate-500 text-sm font-black uppercase tracking-widest">Remix</span>
+                                    <span class="text-slate-500 text-sm font-black uppercase tracking-widest">Inspo</span>
+                                    <span class="text-white text-sm font-black border-b-2 border-secondary pb-4 -mb-4 uppercase tracking-widest">Mashup</span>
+                                </div>
+                                
+                                <div class="bg-[#050505] border border-white/5 rounded-2xl p-5 mb-8 shadow-inner space-y-4">
+                                    <div class="bg-[#111] p-3.5 rounded-xl flex justify-between items-center border border-primary/40 shadow-lg">
+                                        <div class="flex items-center gap-4"><img src="https://images.unsplash.com/photo-1516280440502-a2fecc969746?w=100" class="w-10 h-10 rounded-lg border border-white/10"><span class="text-xs font-black text-white uppercase tracking-wider">Clienta_Aislada</span></div>
+                                        <i class="ph-bold ph-x text-slate-600 cursor-pointer hover:text-white"></i>
+                                    </div>
+                                    <div class="bg-[#111] p-3.5 rounded-xl flex justify-between items-center border border-cyan/40 shadow-lg">
+                                        <div class="flex items-center gap-4"><div class="w-10 h-10 rounded-lg bg-gradient-to-br from-cyan to-blue-500 flex items-center justify-center border border-white/10"><i class="ph-fill ph-play-circle text-white text-xl"></i></div><span class="text-xs font-black text-white uppercase tracking-wider">Clon_Ensayo_01</span></div>
+                                        <i class="ph-bold ph-x text-slate-600 cursor-pointer hover:text-white"></i>
+                                    </div>
+                                </div>
+
+                                <!-- Lyrics Mockup in Mashup -->
+                                <div class="mb-8 flex-1">
+                                    <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3 flex justify-between items-center">Lyrics <span class="text-[9px] bg-secondary/20 text-secondary px-2 py-1 rounded border border-secondary/30">Hack Fonético (ON)</span></label>
+                                    <div class="bg-[#050505] border border-secondary/30 rounded-2xl p-4 text-xs text-suno font-mono h-28 overflow-hidden shadow-inner leading-loose font-bold">
+                                        [Verse]<br>
+                                        ia no kiero pensarte mas...<br>
+                                        mi korason se ase pedasos
+                                    </div>
+                                </div>
+
+                                <button onclick="openWf('wf4')" class="w-full bg-gradient-to-r from-secondary to-purple-600 text-white font-black py-4 rounded-xl shadow-[0_0_30px_rgba(139,92,246,0.4)] hover:scale-[1.02] transition-transform text-sm uppercase tracking-widest mt-auto">
+                                    Generar y Avanzar a Inspo <i class="ph-bold ph-arrow-right text-lg"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- WF4: INSPO -->
+                    <div id="wf4" class="wf-panel max-w-7xl mx-auto">
+                        <span class="px-4 py-1.5 bg-cyan/20 text-cyan border border-cyan/50 rounded-full text-[10px] font-black tracking-widest uppercase mb-6 inline-block shadow-[0_0_15px_rgba(6,182,212,0.3)]">4. El Color Biológico</span>
+                        <h2 class="text-5xl font-display font-black text-white mb-8">Inspiración Múltiple (Inspo)</h2>
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                            <div class="space-y-6">
+                                <div class="glass-card p-8 rounded-3xl border-t-4 border-t-cyan">
+                                    <h3 class="text-2xl font-black text-white mb-4">El Collage Tímbrico</h3>
+                                    <p class="text-sm text-slate-300 mb-6 leading-relaxed font-medium">En la pestaña Inspo, subimos la toma limpia y arrastramos las variaciones crudas (incluso la desafinada de WhatsApp) para que Suno copie la "suciedad" natural de la garganta del artista.</p>
+                                    
+                                    <div class="space-y-4 bg-[#050505] p-6 rounded-2xl border border-white/5 shadow-inner">
+                                        <div class="flex items-start gap-4">
+                                            <i class="ph-fill ph-check-circle text-cyan mt-0.5 text-xl"></i>
+                                            <div><p class="text-sm font-black text-white uppercase tracking-wider">Track Base</p><p class="text-[11px] text-slate-400 mt-1 font-medium">La toma vocal humana limpia.</p></div>
+                                        </div>
+                                        <div class="flex items-start gap-4">
+                                            <i class="ph-fill ph-check-circle text-cyan mt-0.5 text-xl"></i>
+                                            <div><p class="text-sm font-black text-white uppercase tracking-wider">Apoyo 1: El Mashup</p><p class="text-[11px] text-slate-400 mt-1 font-medium">El mejor Mashup (aporta dicción).</p></div>
+                                        </div>
+                                        <div class="flex items-start gap-4 bg-warning/10 p-3 rounded-lg border border-warning/20">
+                                            <i class="ph-fill ph-warning-circle text-warning mt-0.5 text-xl"></i>
+                                            <div><p class="text-sm font-black text-warning uppercase tracking-wider">Apoyo 2: El Secreto AIWIS</p><p class="text-[11px] text-slate-300 mt-1 font-medium">El audio sucio de WhatsApp. Da el color natural y la ronquera real de la artista.</p></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- MOCKUP INSPO -->
+                            <div class="bg-[#0A0A0A] border border-[#222] rounded-3xl shadow-[0_0_50px_rgba(6,182,212,0.15)] p-8 relative flex flex-col h-[520px]">
+                                <div class="flex gap-6 border-b border-white/10 pb-4 mb-8">
+                                    <span class="text-slate-500 text-sm font-black uppercase tracking-widest">Remix</span>
+                                    <span class="text-white text-sm font-black border-b-2 border-cyan pb-4 -mb-4 uppercase tracking-widest">Inspo</span>
+                                    <span class="text-slate-500 text-sm font-black uppercase tracking-widest">Mashup</span>
+                                </div>
+                                <div class="space-y-4 mb-8 flex-1">
+                                    <!-- Base -->
+                                    <div class="bg-[#111] border border-cyan/40 rounded-2xl p-4 flex justify-between items-center shadow-lg relative overflow-hidden">
+                                        <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-cyan"></div>
+                                        <div class="flex items-center gap-4 ml-3">
+                                            <img src="https://images.unsplash.com/photo-1516280440502-a2fecc969746?w=100" class="w-12 h-12 rounded-lg border border-white/10">
+                                            <div><p class="text-xs font-black text-white uppercase tracking-wider">Humana_Limpia</p><p class="text-[9px] text-cyan uppercase tracking-widest mt-1 font-bold">Toma Base</p></div>
+                                        </div>
+                                    </div>
+                                    <!-- Apoyo 1 -->
+                                    <div class="bg-[#111] border border-white/10 rounded-2xl p-4 flex justify-between items-center shadow-md">
+                                        <div class="flex items-center gap-4">
+                                            <div class="w-12 h-12 rounded-lg bg-gradient-to-tr from-secondary to-pink-600 flex items-center justify-center border border-white/10"><i class="ph-fill ph-play-circle text-white text-2xl"></i></div>
+                                            <div><p class="text-xs font-black text-white uppercase tracking-wider">Mejor_Mashup_V4</p><p class="text-[9px] text-slate-500 uppercase tracking-widest mt-1 font-bold">Ref. Dicción</p></div>
+                                        </div>
+                                    </div>
+                                    <!-- Apoyo 2 -->
+                                    <div class="bg-[#111] border border-warning/30 rounded-2xl p-4 flex justify-between items-center shadow-md">
+                                        <div class="flex items-center gap-4">
+                                            <div class="w-12 h-12 rounded-lg bg-slate-800 flex items-center justify-center border border-warning/50"><i class="ph-fill ph-warning text-warning text-2xl"></i></div>
+                                            <div><p class="text-xs font-black text-warning uppercase tracking-wider">Audio_Wsp_Sucio</p><p class="text-[9px] text-warning/70 uppercase tracking-widest mt-1 font-bold">Color / Raw</p></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button onclick="openWf('wf5')" class="w-full bg-cyan text-black font-black py-4 rounded-xl shadow-[0_0_30px_rgba(6,182,212,0.4)] hover:bg-white transition-colors text-sm uppercase tracking-widest">
+                                    Aprobar Modelo Biométrico <i class="ph-bold ph-arrow-right text-lg"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- WF5: CREATE VOICE CLONE -->
+                    <div id="wf5" class="wf-panel hidden animate-slide-in max-w-6xl mx-auto">
+                        <span class="px-4 py-1.5 bg-primary/20 text-primary border border-primary/50 rounded-full text-[10px] font-black tracking-widest uppercase mb-6 inline-block shadow-[0_0_15px_rgba(225,29,72,0.3)]">5. Bóveda</span>
+                        <h2 class="text-5xl font-display font-black text-white mb-8">Create Voice (Clon Definitivo)</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                            <div>
+                                <p class="text-slate-300 text-lg mb-8 font-medium leading-relaxed">Al aislar la voz perfecta con la métrica ideal y el timbre idéntico, capturamos esa esencia guardándola como "Voice Model" en Suno para su uso perpetuo.</p>
+                                <div class="glass-card border-l-4 border-l-primary p-8 rounded-r-[2rem] mb-8 shadow-2xl relative overflow-hidden">
+                                    <div class="absolute right-4 top-4 text-primary/10"><i class="ph-fill ph-lock-key text-6xl"></i></div>
+                                    <h4 class="text-white font-black text-xl mb-3 relative z-10 flex items-center gap-3"><i class="ph-fill ph-shield-check text-primary text-2xl"></i> Custodia Legal AIWIS</h4>
+                                    <p class="text-sm text-slate-300 relative z-10 font-medium leading-relaxed">El modelo biométrico queda encriptado bajo la cuenta Premium de AIWIS. Solo el productor autorizado puede invocarlo, protegiendo la identidad de la artista.</p>
+                                </div>
+                                <button onclick="openWf('wf6')" class="bg-primary text-white px-8 py-4 rounded-xl font-black text-sm hover:bg-rose-600 transition-colors shadow-[0_0_30px_rgba(225,29,72,0.4)] uppercase tracking-widest flex items-center gap-3">
+                                    Finalizar y Exportar a DAW <i class="ph-bold ph-arrow-right text-xl"></i>
+                                </button>
+                            </div>
+
+                            <!-- MOCKUP CREATE VOICE -->
+                            <div class="bg-[#0A0A0A] border border-[#222] rounded-[2rem] shadow-[0_0_60px_rgba(225,29,72,0.2)] relative overflow-hidden p-8">
+                                <div class="flex justify-between items-center mb-8 border-b border-white/10 pb-5">
+                                    <span class="text-white font-black text-xl mx-auto flex items-center gap-3 uppercase tracking-widest">Create a Voice <span class="bg-primary/20 text-primary text-[10px] px-2.5 py-1 rounded border border-primary/30">BETA</span></span>
+                                </div>
+                                <div class="space-y-8">
+                                    <div>
+                                        <label class="text-[10px] text-slate-500 uppercase font-black mb-3 block tracking-widest">Based on (Track Final)</label>
+                                        <div class="bg-[#111] border border-white/5 rounded-2xl p-5 flex items-center justify-between shadow-inner">
+                                            <div class="flex items-center gap-4">
+                                                <div class="w-14 h-14 bg-gradient-to-br from-primary to-secondary rounded-xl flex items-center justify-center shadow-lg border border-white/10"><i class="ph-fill ph-play-circle text-white text-3xl"></i></div>
+                                                <div><p class="text-sm font-black text-white uppercase tracking-wider">TOMA_DEF_INSPO_V7</p><p class="text-[11px] text-slate-400 mt-1.5 font-mono font-bold">0:00 / 0:42</p></div>
+                                            </div>
+                                            <i class="ph-bold ph-x-circle text-slate-600 hover:text-white cursor-pointer text-2xl"></i>
+                                        </div>
+                                    </div>
+                                    <div class="text-center text-xs text-primary font-mono font-bold animate-pulse">Processing vocal stem (10s - 60s)...</div>
+                                    <div class="flex gap-6 items-center">
+                                        <div class="w-20 h-20 rounded-full bg-[url('https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?w=100')] bg-cover border-2 border-primary/50 shadow-[0_0_30px_rgba(225,29,72,0.4)]"></div>
+                                        <div class="flex-1">
+                                            <label class="text-[10px] text-slate-500 uppercase font-black mb-2 block tracking-widest">Name this Voice</label>
+                                            <input type="text" value="CLON CLIENTA OFICIAL" class="w-full bg-[#111] border border-white/10 rounded-xl p-4 text-sm text-white font-black uppercase tracking-wider focus:outline-none focus:border-primary transition-colors shadow-inner">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- WF6: DAW RETURN -->
+                    <div id="wf6" class="wf-panel hidden animate-slide-in max-w-6xl mx-auto">
+                        <span class="px-4 py-1.5 bg-daw/20 text-daw border border-daw/50 rounded-full text-[10px] font-black tracking-widest uppercase mb-6 inline-block shadow-[0_0_15px_rgba(59,130,246,0.3)]">6. Masterización</span>
+                        <h2 class="text-5xl font-display font-black text-white mb-8">Retorno al DAW (Vocal Comping)</h2>
+                        <div class="glass-card p-12 rounded-[3rem] border border-white/5 relative overflow-hidden shadow-2xl">
+                            <div class="absolute right-0 top-0 w-1/2 h-full bg-gradient-to-l from-daw/10 to-transparent pointer-events-none"></div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 relative z-10 items-center">
+                                <div>
+                                    <h3 class="text-3xl font-black text-white mb-5">Suno <span class="text-primary">NO</span> Masteriza</h3>
+                                    <p class="text-slate-300 leading-relaxed mb-8 font-medium text-base">Descargamos el WAV de la voz clonada final y volvemos al Cubase/Ableton del productor para la cirugía de estudio.</p>
+                                    
+                                    <div class="bg-[#0A0A0B] border border-white/10 p-8 rounded-2xl mb-10 shadow-inner">
+                                        <h4 class="font-black text-white text-sm mb-5 uppercase tracking-widest">Cirugía Vocal (Comping):</h4>
+                                        <ul class="text-sm text-slate-300 space-y-5 font-medium">
+                                            <li class="flex items-center gap-4"><div class="w-10 h-10 rounded-full bg-[#18181A] flex items-center justify-center text-daw border border-white/5"><i class="ph-bold ph-scissors text-xl"></i></div> Mute/Corte en el error de la voz humana.</li>
+                                            <li class="flex items-center gap-4"><div class="w-10 h-10 rounded-full bg-[#18181A] flex items-center justify-center text-daw border border-white/5"><i class="ph-bold ph-magnet text-xl"></i></div> Pegar el WAV de la IA. (Calza perfecto por el silencio 0:00).</li>
+                                            <li class="flex items-center gap-4"><div class="w-10 h-10 rounded-full bg-[#18181A] flex items-center justify-center text-daw border border-white/5"><i class="ph-bold ph-waves text-xl"></i></div> <strong>Vocal Bus Glue:</strong> Compresión LA-2A y Reverb compartida.</li>
+                                        </ul>
+                                    </div>
+                                    <button onclick="switchView('dev')" class="bg-[#111] border border-white/20 text-white px-8 py-4 rounded-xl font-bold text-sm hover:bg-white/10 transition-colors shadow-lg flex items-center justify-center gap-3 w-full md:w-auto">Explorar IA Fonética (Dev Hub) <i class="ph-bold ph-terminal-window text-xl"></i></button>
+                                </div>
+                                
+                                <!-- Mockup final DAW -->
+                                <div class="bg-[#1C1C1E] border-2 border-[#333] rounded-[2rem] overflow-hidden shadow-[0_40px_80px_rgba(0,0,0,0.8)] flex flex-col h-full transform md:rotate-2">
+                                    <div class="bg-[#111] p-4 text-[10px] text-white font-black flex items-center justify-between tracking-widest border-b border-[#333]">CUBASE PRO 13 - VOCAL BUS <i class="ph-bold ph-sliders-horizontal text-base text-daw"></i></div>
+                                    <div class="p-8 space-y-6 flex-1 flex flex-col justify-center bg-[#0A0A0B]">
+                                        <div class="flex h-16 relative group">
+                                            <div class="absolute -left-2 top-1/2 transform -translate-y-1/2 text-daw font-bold text-sm"><i class="ph-fill ph-speaker-high"></i></div>
+                                            <div class="w-28 bg-[#18181A] text-[10px] text-white flex items-center justify-center border border-[#333] rounded-l-lg font-black shadow-md z-10 ml-6 uppercase tracking-widest">Vox Humana</div>
+                                            <div class="flex-1 bg-[#111] border-y border-r border-[#333] p-2 flex items-center gap-1 rounded-r-lg shadow-inner">
+                                                <div class="h-full bg-daw/70 rounded w-1/3 border border-daw/50"></div>
+                                                <div class="h-full bg-transparent rounded w-1/4 border-2 border-dashed border-red-500/50 flex items-center justify-center text-[10px] text-red-500 font-black tracking-widest bg-red-500/10">MUTE</div>
+                                                <div class="h-full bg-daw/70 rounded w-1/3 border border-daw/50"></div>
+                                            </div>
+                                        </div>
+                                        <div class="flex h-16 relative group">
+                                            <div class="absolute -left-2 top-1/2 transform -translate-y-1/2 text-primary font-bold text-sm"><i class="ph-fill ph-robot"></i></div>
+                                            <div class="w-28 bg-[#18181A] text-[10px] text-primary flex items-center justify-center border border-[#333] rounded-l-lg font-black shadow-md z-10 ml-6 uppercase tracking-widest">Vox IA Clon</div>
+                                            <div class="flex-1 bg-[#111] border-y border-r border-[#333] p-2 flex items-center rounded-r-lg shadow-inner relative">
+                                                <div class="h-full bg-transparent rounded w-1/3"></div>
+                                                <div class="h-full bg-primary rounded w-[26%] shadow-[0_0_30px_rgba(236,72,153,0.6)] flex items-center justify-center text-[11px] text-white font-black tracking-widest border border-white/30 z-20">PARCHE IA</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- ===================================================================
+             VISTA D: DEV HUB (PROMPTS & IA FONÉTICA) CON SUPER CONTRASTE
+             =================================================================== -->
+        <div id="view-dev" class="view-panel hidden flex-col h-full overflow-y-auto w-full">
+            <div class="max-w-7xl mx-auto p-8 mt-8 pb-32">
+                <div class="mb-16 text-center">
+                    <h1 class="text-6xl font-display font-black text-white mb-6">IA Fonética & <span class="text-secondary">Prompts</span></h1>
+                    <p class="text-xl text-textMuted max-w-4xl mx-auto font-medium leading-relaxed">Destruimos la ortografía formal de la RAE. El motor de texto a voz (TTS) de Suno tiene sesgos europeos y rioplatenses que corregimos mediante "Hackeo Lingüístico" asistido por Claude o Gemini.</p>
+                </div>
+
+                <!-- DICCIONARIO FONÉTICO GIGANTE (ALTO CONTRASTE) -->
+                <div class="glass-card p-10 rounded-[2.5rem] border-t-4 border-t-secondary mb-12 shadow-[0_20px_50px_rgba(139,92,246,0.15)] relative overflow-hidden">
+                    <h3 class="text-3xl font-black text-white mb-8 flex items-center gap-3 relative z-10"><i class="ph-fill ph-translate text-secondary text-4xl"></i> Reglas de Hackeo Fonético (Latam/Chile)</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 relative z-10">
+                        <div class="bg-[#050505] border border-[#222] p-8 rounded-2xl shadow-inner relative overflow-hidden">
+                            <div class="absolute top-0 left-0 w-full h-1 bg-primary"></div>
+                            <h4 class="text-primary font-black mb-3 text-xl uppercase tracking-wider">1. Anti-Seseo (ES)</h4>
+                            <p class="text-sm text-slate-400 mb-6 font-medium">Evita el ceceo de España. Obliga a la IA a pronunciar como latino.</p>
+                            <div class="bg-[#111] p-5 rounded-xl font-mono text-sm border border-white/5">
+                                <div class="flex items-center gap-4 mb-2"><span class="text-red-500 font-bold line-through text-lg">Z, C (ce/ci)</span> <i class="ph-bold ph-arrow-right text-slate-600"></i> <span class="text-suno font-black text-2xl">S, K</span></div>
+                                <div class="w-full h-px bg-white/10 my-4"></div>
+                                <p class="text-slate-400 mb-2">Corazón <i class="ph-bold ph-arrow-right mx-1 text-xs"></i> <span class="text-white font-bold bg-white/10 px-2 py-0.5 rounded">Korason</span></p>
+                                <p class="text-slate-400">Cielo <i class="ph-bold ph-arrow-right mx-1 text-xs"></i> <span class="text-white font-bold bg-white/10 px-2 py-0.5 rounded">Sielo</span></p>
+                            </div>
+                        </div>
+
+                        <div class="bg-[#050505] border border-[#222] p-8 rounded-2xl shadow-inner relative overflow-hidden">
+                            <div class="absolute top-0 left-0 w-full h-1 bg-cyan"></div>
+                            <h4 class="text-cyan font-black mb-3 text-xl uppercase tracking-wider">2. Anti-Yeísmo (AR)</h4>
+                            <p class="text-sm text-slate-400 mb-6 font-medium">Evita que el Clon suene como porteño ("sho shoro"). Suaviza fonemas.</p>
+                            <div class="bg-[#111] p-5 rounded-xl font-mono text-sm border border-white/5">
+                                <div class="flex items-center gap-4 mb-2"><span class="text-red-500 font-bold line-through text-lg">LL, Y</span> <i class="ph-bold ph-arrow-right text-slate-600"></i> <span class="text-suno font-black text-2xl">i, hi</span></div>
+                                <div class="w-full h-px bg-white/10 my-4"></div>
+                                <p class="text-slate-400 mb-2">Lluvia <i class="ph-bold ph-arrow-right mx-1 text-xs"></i> <span class="text-white font-bold bg-white/10 px-2 py-0.5 rounded">hiubia</span></p>
+                                <p class="text-slate-400">Yo ya <i class="ph-bold ph-arrow-right mx-1 text-xs"></i> <span class="text-white font-bold bg-white/10 px-2 py-0.5 rounded">io ia</span></p>
+                            </div>
+                        </div>
+
+                        <div class="bg-[#050505] border border-[#222] p-8 rounded-2xl shadow-inner relative overflow-hidden">
+                            <div class="absolute top-0 left-0 w-full h-1 bg-daw"></div>
+                            <h4 class="text-daw font-black mb-3 text-xl uppercase tracking-wider">3. Legato & Tempo</h4>
+                            <p class="text-sm text-slate-400 mb-6 font-medium">Evita pausas robóticas. Une palabras cortas para el flow Urbano/Pop.</p>
+                            <div class="bg-[#111] p-5 rounded-xl font-mono text-sm border border-white/5">
+                                <div class="flex items-center gap-4 mb-2"><span class="text-red-500 font-bold line-through text-base">Espacios (...)</span> <i class="ph-bold ph-arrow-right text-slate-600"></i> <span class="text-suno font-black text-2xl">- (Guión)</span></div>
+                                <div class="w-full h-px bg-white/10 my-4"></div>
+                                <p class="text-slate-400 mb-2">En la calle <i class="ph-bold ph-arrow-right mx-1 text-xs"></i> <span class="text-white font-bold bg-white/10 px-2 py-0.5 rounded">en-la kaie</span></p>
+                                <p class="text-slate-400">Pausas <i class="ph-bold ph-arrow-right mx-1 text-xs"></i> <span class="text-white font-bold bg-white/10 px-2 py-0.5 rounded">Usa comas (,)</span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                    <!-- LLM Formatter -->
+                    <div class="glass-card p-10 rounded-3xl border border-[#222]">
+                        <div class="flex justify-between items-center mb-8">
+                            <h3 class="text-2xl font-black text-white flex items-center gap-3"><i class="ph-fill ph-brain text-secondary text-3xl"></i> Generador Prompt (LLM)</h3>
+                        </div>
+                        <p class="text-sm text-textMuted mb-6 font-medium leading-relaxed">Pega la letra original de la RAE aquí. ArmonIA generará el <strong>System Prompt Markdown</strong> exacto para que Claude o Gemini hackeen la fonética antes de llevar la letra a Suno.</p>
+
+                        <textarea id="prompt-input" class="w-full h-32 bg-[#050505] border border-[#333] rounded-xl p-5 text-sm text-white mb-6 focus:border-secondary outline-none resize-none shadow-inner" placeholder="Pega la letra del cliente aquí... (Ej: Ya llovió en la ciudad, mi corazón llora...)"></textarea>
+                        
+                        <button onclick="formatearPrompt()" class="w-full bg-secondary text-white text-base font-black py-4 rounded-xl hover:bg-purple-600 transition-transform hover:-translate-y-1 mb-8 shadow-[0_10px_30px_rgba(139,92,246,0.3)] uppercase tracking-widest flex items-center justify-center gap-2">
+                            <i class="ph-bold ph-magic-wand text-xl"></i> Generar System Prompt
+                        </button>
+
+                        <div class="bg-[#050505] p-6 rounded-2xl border border-secondary/30 relative shadow-inner">
+                            <button onclick="copyToClipboard('prompt-output')" class="absolute top-4 right-4 text-[10px] bg-[#18181A] border border-[#333] hover:border-white/30 px-3 py-2 rounded-lg text-white font-bold transition-colors flex items-center gap-2 shadow-md uppercase tracking-wider"><i class="ph-bold ph-copy text-sm"></i> Copiar Prompt</button>
+                            <label class="text-[10px] font-black text-secondary uppercase tracking-widest mb-4 block">Output (Markdown)</label>
+                            <textarea id="prompt-output" readonly class="w-full h-64 bg-transparent text-[12px] font-mono text-suno resize-none outline-none leading-relaxed font-bold">// El código para Gemini/Claude aparecerá aquí...</textarea>
+                        </div>
+                    </div>
+
+                    <!-- JSON Metadata -->
+                    <div class="glass-card p-10 rounded-3xl border border-[#222] flex flex-col">
+                        <h3 class="text-2xl font-black text-white mb-4 flex items-center gap-3"><i class="ph-fill ph-database text-cyan text-3xl"></i> BBDD & Nomenclatura</h3>
+                        <p class="text-sm text-textMuted mb-8 font-medium leading-relaxed">Estandarización estricta de nombres para el Drive. Cero archivos basura.</p>
+                        
+                        <div class="grid grid-cols-2 gap-6 mb-8">
+                            <div><label class="text-[10px] text-slate-500 uppercase font-black mb-2 block tracking-widest">ID Proyecto</label><input type="text" id="json-cli" value="OSORNO_PROD" class="w-full bg-[#050505] border border-[#333] p-4 rounded-xl text-xs text-white outline-none focus:border-cyan font-bold shadow-inner"></div>
+                            <div><label class="text-[10px] text-slate-500 uppercase font-black mb-2 block tracking-widest">Tipo (Tag)</label><select id="json-tipo" class="w-full bg-[#050505] border border-[#333] p-4 rounded-xl text-xs text-white outline-none focus:border-cyan font-bold shadow-inner"><option value="MASHUP_VOX">MASHUP_VOX</option><option value="STEM_ISOLATED">STEM_ISOLATED</option><option value="INSPO_BASE">INSPO_BASE</option></select></div>
+                            <div><label class="text-[10px] text-slate-500 uppercase font-black mb-2 block tracking-widest">Grilla (BPM)</label><input type="number" id="json-bpm" value="124" class="w-full bg-[#050505] border border-[#333] p-4 rounded-xl text-xs text-white outline-none focus:border-cyan font-bold shadow-inner"></div>
+                            <div><label class="text-[10px] text-slate-500 uppercase font-black mb-2 block tracking-widest">Iteración</label><input type="text" id="json-ver" value="v4" class="w-full bg-[#050505] border border-[#333] p-4 rounded-xl text-xs text-white outline-none focus:border-cyan font-bold shadow-inner"></div>
+                        </div>
+                        <button onclick="generarJSON()" class="w-full bg-cyan/20 border border-cyan/50 text-cyan text-sm font-black py-4 rounded-xl hover:bg-cyan hover:text-black transition-colors mb-8 shadow-[0_10px_30px_rgba(6,182,212,0.2)] uppercase tracking-widest">Generar Metadatos (JSON)</button>
+
+                        <div class="bg-[#050505] p-6 rounded-2xl border border-cyan/30 relative flex-1 shadow-inner">
+                            <pre id="json-output" class="text-[12px] font-mono text-cyan overflow-x-auto h-full leading-relaxed font-bold">// El objeto JSON para la BBDD aparecerá aquí...</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===================================================================
+             VISTA E: REGLAS Y MANUAL (BUENAS PRÁCTICAS & SUNO TIERS)
+             =================================================================== -->
+        <div id="view-rules" class="view-panel hidden flex-col h-full overflow-y-auto w-full">
+            <div class="max-w-7xl mx-auto p-8 mt-8 pb-24">
+                <div class="mb-16 text-center">
+                    <h1 class="text-5xl font-display font-black text-white mb-4">Manual de <span class="text-warning">Operaciones</span></h1>
+                    <p class="text-lg text-textMuted max-w-2xl mx-auto font-medium">Requisitos técnicos del software y directrices obligatorias de calidad AIWIS.</p>
+                </div>
+
+                <!-- Cuentas Suno -->
+                <div class="mb-16">
+                    <h2 class="text-3xl font-black text-white mb-8 flex items-center gap-3"><i class="ph-fill ph-credit-card text-slate-400"></i> Niveles de Cuenta Suno</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div class="bg-[#0A0A0B] p-8 rounded-3xl border-t-4 border-t-slate-600 border border-white/5 opacity-60">
+                            <h3 class="font-black text-white mb-2 text-2xl">Cuenta Free</h3>
+                            <p class="text-sm text-textMuted mb-6 font-medium">Uso recreativo. Totalmente inútil para el flujo híbrido.</p>
+                            <ul class="text-xs text-slate-300 space-y-4 font-medium">
+                                <li class="flex items-center gap-3"><i class="ph-bold ph-x text-red-500 text-xl"></i> No permite extración Stems.</li>
+                                <li class="flex items-center gap-3"><i class="ph-bold ph-x text-red-500 text-xl"></i> No permite uso comercial.</li>
+                                <li class="flex items-center gap-3"><i class="ph-bold ph-x text-red-500 text-xl"></i> Cola de render lenta.</li>
+                            </ul>
+                        </div>
+                        <div class="bg-[#0A0A0B] p-8 rounded-3xl border-t-4 border-t-daw border border-white/5">
+                            <h3 class="font-black text-white mb-2 text-2xl">Cuenta Pro</h3>
+                            <p class="text-sm text-textMuted mb-6 font-medium">Nivel intermedio. Útil para maquetas y demos rápidas.</p>
+                            <ul class="text-xs text-slate-300 space-y-4 font-medium">
+                                <li class="flex items-center gap-3"><i class="ph-bold ph-check text-daw text-xl"></i> Extracción de Stems básica.</li>
+                                <li class="flex items-center gap-3"><i class="ph-bold ph-check text-daw text-xl"></i> Uso comercial habilitado.</li>
+                                <li class="flex items-center gap-3"><i class="ph-bold ph-warning text-warning text-xl"></i> Limitado en procesamiento diario.</li>
+                            </ul>
+                        </div>
+                        <div class="glass-card p-8 rounded-3xl border-t-4 border-t-primary shadow-[0_0_40px_rgba(225,29,72,0.2)] transform md:scale-105 z-10 relative">
+                            <div class="absolute top-4 right-4 bg-primary/20 text-primary text-[10px] font-black px-3 py-1 rounded border border-primary/30 tracking-widest">REQUERIDO AIWIS</div>
+                            <h3 class="font-black text-white mb-2 text-2xl mt-4">Cuenta Premium</h3>
+                            <p class="text-sm text-slate-300 mb-6 font-medium">Mandatorio para producción final e integraciones AIWIS.</p>
+                            <ul class="text-xs text-white space-y-4 font-bold">
+                                <li class="flex items-center gap-3"><i class="ph-bold ph-check text-primary text-2xl"></i> Acceso Total a Suno Studio.</li>
+                                <li class="flex items-center gap-3"><i class="ph-bold ph-check text-primary text-2xl"></i> Ajuste de Tempo (On Beat).</li>
+                                <li class="flex items-center gap-3"><i class="ph-bold ph-check text-primary text-2xl"></i> Generación rápida y prioritaria.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                    <!-- DOs -->
+                    <div class="glass-card p-10 rounded-[2.5rem] border border-suno/40 shadow-[0_0_40px_rgba(16,185,129,0.1)]">
+                        <h3 class="text-3xl font-black text-suno mb-8 flex items-center gap-3"><i class="ph-fill ph-check-circle"></i> SÍ SE DEBE HACER</h3>
+                        <ul class="space-y-8 text-sm text-slate-300 font-medium">
+                            <li class="flex items-start gap-5"><i class="ph-bold ph-check text-suno mt-1 text-2xl bg-suno/10 p-1.5 rounded-lg"></i> <div><strong class="text-white text-lg">Exportar desde 0:00:</strong><br><span class="text-textMuted leading-relaxed block mt-2">Al recortar en el DAW, siempre renderizar la pista incluyendo el silencio previo. Al volver de la IA, encajará sola en la grilla sin moverla manual.</span></div></li>
+                            <li class="flex items-start gap-5"><i class="ph-bold ph-check text-suno mt-1 text-2xl bg-suno/10 p-1.5 rounded-lg"></i> <div><strong class="text-white text-lg">Inspo con Audios Crudos:</strong><br><span class="text-textMuted leading-relaxed block mt-2">No descartes el audio grabado con el celular. Úsalo en la pestaña "Inspo" como capa extra para que Suno copie la "suciedad" natural y el color real biológico.</span></div></li>
+                            <li class="flex items-start gap-5"><i class="ph-bold ph-check text-suno mt-1 text-2xl bg-suno/10 p-1.5 rounded-lg"></i> <div><strong class="text-white text-lg">Vocal Bus Glue:</strong><br><span class="text-textMuted leading-relaxed block mt-2">Usar un canal de grupo maestro en Cubase que comprima (LA-2A Opto) y aplique Reverb compartida a la voz humana real y al parche IA para engañar al oído.</span></div></li>
+                        </ul>
+                    </div>
+                    
+                    <!-- DONTs -->
+                    <div class="glass-card p-10 rounded-[2.5rem] border border-primary/40 shadow-[0_0_40px_rgba(225,29,72,0.1)]">
+                        <h3 class="text-3xl font-black text-primary mb-8 flex items-center gap-3"><i class="ph-fill ph-x-circle"></i> NO SE DEBE HACER</h3>
+                        <ul class="space-y-8 text-sm text-slate-300 font-medium">
+                            <li class="flex items-start gap-5"><i class="ph-bold ph-x text-primary mt-1 text-2xl bg-primary/10 p-1.5 rounded-lg"></i> <div><strong class="text-white text-lg">Subir la Canción Entera:</strong><br><span class="text-textMuted leading-relaxed block mt-2">Suno pierde el control rítmico en audios largos (memoria de contexto limitada). Corta siempre por secciones precisas (Verso, Coro) de máximo 60 segundos.</span></div></li>
+                            <li class="flex items-start gap-5"><i class="ph-bold ph-x text-primary mt-1 text-2xl bg-primary/10 p-1.5 rounded-lg"></i> <div><strong class="text-white text-lg">Usar Ortografía RAE:</strong><br><span class="text-textMuted leading-relaxed block mt-2">Si escribes "Corazón", la IA lo cantará con ceceo español. Si escribes "Lluvia", sonará porteño. Hackea la fonética siempre por el Dev Hub.</span></div></li>
+                            <li class="flex items-start gap-5"><i class="ph-bold ph-x text-primary mt-1 text-2xl bg-primary/10 p-1.5 rounded-lg"></i> <div><strong class="text-white text-lg">Mashup con Pistas Sucias:</strong><br><span class="text-textMuted leading-relaxed block mt-2">Nunca fusiones Instrumental+Voz sobre Instrumental+Voz. Siempre usa "Get Stems" para extraer la voz aislada primero.</span></div></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- JS LOGIC -->
+    <script>
+        // --- NAVEGACIÓN GLOBAL ---
+        function switchView(viewId) {
+            document.querySelectorAll('.view-panel').forEach(el => {
+                el.classList.remove('active-flex', 'active-block', 'flex', 'block');
+                el.classList.add('hidden');
+            });
+            document.querySelectorAll('.nav-btn').forEach(el => {
+                el.classList.remove('bg-white/10', 'text-white');
+                el.classList.add('text-textMuted');
+            });
+
+            const target = document.getElementById('view-' + viewId);
+            target.classList.remove('hidden');
+            
+            if(viewId === 'workflow') {
+                target.classList.add('flex');
+                openWf('wf0'); // Iniciar workflow en el paso 0
+            } else {
+                target.classList.add('flex');
+            }
+
+            // Reflow animacion
+            target.classList.remove('animate-fade-in');
+            void target.offsetWidth; 
+            target.classList.add('animate-fade-in');
+
+            const btn = document.getElementById('nav-' + viewId);
+            if(btn) {
+                btn.classList.add('bg-white/10', 'text-white');
+                btn.classList.remove('text-textMuted');
+            }
+        }
+
+        // --- NAVEGACIÓN WORKFLOW ---
+        function openWf(stepId) {
+            document.querySelectorAll('.wf-panel').forEach(el => {
+                el.classList.remove('active-block', 'animate-slide-in', 'block');
+                el.classList.add('hidden');
+            });
+            document.querySelectorAll('.wf-btn').forEach(el => {
+                el.classList.remove('bg-white/10', 'active');
+            });
+
+            const target = document.getElementById(stepId);
+            target.classList.remove('hidden');
+            target.classList.add('active-block');
+            
+            target.classList.remove('animate-slide-in');
+            void target.offsetWidth;
+            target.classList.add('animate-slide-in');
+
+            const btn = document.getElementById('btn-' + stepId);
+            if(btn) btn.classList.add('bg-white/10', 'active');
+        }
+
+        // --- CHECKLIST LÓGICA (WF1) ---
+        const checkboxes = document.querySelectorAll('.checklist-item');
+        const nextBtn = document.getElementById('btn-next-step1');
+
+        checkboxes.forEach(cb => {
+            cb.addEventListener('change', () => {
+                const allChecked = Array.from(checkboxes).every(c => c.checked);
+                if(allChecked) {
+                    nextBtn.disabled = false;
+                    nextBtn.classList.remove('bg-[#18181A]', 'text-slate-500', 'cursor-not-allowed', 'border-white/10');
+                    nextBtn.classList.add('bg-daw', 'text-white', 'border-daw', 'hover:bg-blue-600', 'shadow-[0_0_30px_rgba(59,130,246,0.5)]');
+                    nextBtn.innerHTML = 'Aprobado. Ir a Mundo IA <i class="ph-bold ph-arrow-right text-xl"></i>';
+                } else {
+                    nextBtn.disabled = true;
+                    nextBtn.classList.add('bg-[#18181A]', 'text-slate-500', 'cursor-not-allowed', 'border-white/10');
+                    nextBtn.classList.remove('bg-daw', 'text-white', 'border-daw', 'hover:bg-blue-600', 'shadow-[0_0_30px_rgba(59,130,246,0.5)]');
+                    nextBtn.innerHTML = 'Aprobar Checklist para Avanzar <i class="ph-bold ph-lock text-lg"></i>';
+                }
+            });
+        });
+
+        // --- DEV HUB: GENERADOR DE PROMPT MARKDOWN ---
+        function formatearPrompt() {
+            const input = document.getElementById('prompt-input').value;
+            if(!input) {
+                document.getElementById('prompt-output').value = "// ERROR: Por favor, pega la letra original arriba primero.";
+                return;
+            }
+
+            const promptMarkdown = `Actúa como el **Ingeniero de Prompts Fonéticos de AIWIS Music**.
+Tu objetivo es procesar la siguiente letra para inyectarla en un motor TTS Musical (Suno V5) y asegurar un **acento latino neutro/chileno**, evitando acentos ibéricos (España) o muy marcados (Argentina).
+
+### REGLAS ESTRICTAS DE HACKEO (Aplicar en orden):
+
+1. **Anti-Seseo (Evitar España):**
+   - Reemplaza toda 'Z' por 'S'. *(Ej: Corazón -> Korason)*
+   - Reemplaza toda 'C' (antes de E, I) por 'S'. *(Ej: Cielo -> Sielo)*
+   - Reemplaza la 'C' (sonido fuerte) por 'K'. *(Ej: Casa -> Kasa)*
+
+2. **Anti-Yeísmo (Evitar Argentina):**
+   - Reemplaza 'LL' por 'i' o 'hi'. *(Ej: Lluvia -> hiubia / calle -> kaie)*
+   - Reemplaza 'Y' (como consonante) por 'i'. *(Ej: Yo -> io, Ya -> ia)*
+
+3. **Legato Urbano (Flow de la métrica):**
+   - Une preposiciones o artículos cortos con guiones. *(Ej: en la calle -> en-la kaie)*.
+   - Usa comas (,) en lugares estratégicos para forzar respiraciones naturales.
+
+### TEXTO ORIGINAL A PROCESAR:
+\`\`\`text
+${input}
+\`\`\`
+
+**Devuelve ÚNICAMENTE el bloque Markdown con la estructura musical \`[Verse 1]\`, \`[Chorus]\`, etc. No agregues explicaciones.**`;
+            
+            const outputEl = document.getElementById('prompt-output');
+            outputEl.value = promptMarkdown;
+            
+            // Efecto visual pop
+            outputEl.style.transform = "scale(0.98)";
+            setTimeout(() => outputEl.style.transform = "scale(1)", 150);
+        }
+
+        // --- DEV HUB: GENERADOR JSON ---
+        function generarJSON() {
+            const cli = document.getElementById('json-cli').value.toUpperCase().replace(/\s+/g, '_');
+            const tipo = document.getElementById('json-tipo').value;
+            const bpm = document.getElementById('json-bpm').value;
+            const ver = document.getElementById('json-ver').value;
+            
+            const fileName = `${cli}_${tipo}_${bpm}BPM_${ver}.wav`;
+
+            const jsonStr = `{
+  "file_name": "${fileName}",
+  "metadata": {
+    "engine": "ArmonIA_API_v17_POC",
+    "cliente_id": "${cli}",
+    "tipo_render": "${tipo}",
+    "grilla_bpm": ${bpm},
+    "version": "${ver}",
+    "timestamp": "${new Date().toISOString()}"
+  },
+  "sync_drive": true,
+  "status": "Ready_For_DAW"
+}`;
+            document.getElementById('json-output').innerText = jsonStr;
+        }
+
+        function copyToClipboard(elementId) {
+            const text = document.getElementById(elementId).value;
+            navigator.clipboard.writeText(text);
+        }
+
+        // Init App
+        document.addEventListener('DOMContentLoaded', () => switchView('home'));
+    </script>
+</body>
+</html>

@@ -1,0 +1,1501 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AIWIS — Metodología de Control Total sobre IA Musical</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-deep: #07080D;
+  --bg-card: #0E1117;
+  --bg-elevated: #161B22;
+  --bg-hover: #1C2333;
+  --accent-primary: #F97316;
+  --accent-secondary: #3B82F6;
+  --accent-teal: #14B8A6;
+  --accent-violet: #8B5CF6;
+  --accent-rose: #F43F5E;
+  --accent-amber: #F59E0B;
+  --text-primary: #F0F2F5;
+  --text-secondary: #9CA3AF;
+  --text-muted: #6B7280;
+  --border: rgba(255,255,255,0.06);
+  --border-accent: rgba(249,115,22,0.3);
+  --glow-orange: 0 0 40px rgba(249,115,22,0.15);
+  --glow-blue: 0 0 40px rgba(59,130,246,0.15);
+  --radius: 16px;
+  --radius-sm: 10px;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Outfit', sans-serif;
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+
+::selection { background: rgba(249,115,22,0.3); color: #fff; }
+
+/* ===== SCROLLBAR ===== */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-deep); }
+::-webkit-scrollbar-thumb { background: var(--accent-primary); border-radius: 3px; }
+
+/* ===== NOISE OVERLAY ===== */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* ===== NAVIGATION ===== */
+.nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+  background: rgba(7,8,13,0.85);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  transition: transform 0.3s;
+}
+.nav-inner {
+  max-width: 1400px; margin: 0 auto;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 32px;
+}
+.nav-logo {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700; font-size: 1.3rem; color: var(--accent-primary);
+  letter-spacing: -0.5px;
+  display: flex; align-items: center; gap: 8px;
+}
+.nav-logo svg { width: 28px; height: 28px; }
+.nav-links { display: flex; gap: 6px; flex-wrap: wrap; }
+.nav-links a {
+  color: var(--text-secondary); text-decoration: none;
+  font-size: 0.82rem; font-weight: 500; padding: 6px 14px;
+  border-radius: 8px; transition: all 0.2s;
+}
+.nav-links a:hover { color: var(--text-primary); background: var(--bg-elevated); }
+.nav-links a.active { color: var(--accent-primary); background: rgba(249,115,22,0.1); }
+
+/* ===== HERO ===== */
+.hero {
+  min-height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+  position: relative; overflow: hidden;
+  padding: 120px 32px 80px;
+}
+.hero-bg {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(249,115,22,0.12), transparent),
+    radial-gradient(ellipse 60% 40% at 80% 60%, rgba(59,130,246,0.08), transparent),
+    radial-gradient(ellipse 50% 30% at 20% 80%, rgba(139,92,246,0.06), transparent);
+}
+.hero-grid {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 50%, black, transparent);
+}
+.hero-content { position: relative; text-align: center; max-width: 900px; }
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(249,115,22,0.1); border: 1px solid rgba(249,115,22,0.25);
+  padding: 8px 20px; border-radius: 100px;
+  font-size: 0.82rem; font-weight: 600; color: var(--accent-primary);
+  margin-bottom: 32px; letter-spacing: 1.5px; text-transform: uppercase;
+}
+.hero-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2.8rem, 6vw, 5.5rem);
+  font-weight: 900; line-height: 1.05;
+  letter-spacing: -2px;
+  margin-bottom: 24px;
+}
+.hero-title .gradient {
+  background: linear-gradient(135deg, var(--accent-primary), #FB923C, var(--accent-amber));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.hero-subtitle {
+  font-size: clamp(1.05rem, 2vw, 1.3rem);
+  color: var(--text-secondary); max-width: 680px; margin: 0 auto 48px;
+  font-weight: 300; line-height: 1.8;
+}
+.hero-cta {
+  display: inline-flex; align-items: center; gap: 10px;
+  background: linear-gradient(135deg, var(--accent-primary), #EA580C);
+  color: #fff; font-weight: 600; font-size: 1rem;
+  padding: 16px 36px; border-radius: 14px;
+  text-decoration: none; transition: all 0.3s;
+  box-shadow: 0 4px 24px rgba(249,115,22,0.3);
+}
+.hero-cta:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(249,115,22,0.4); }
+
+.hero-stats {
+  display: flex; justify-content: center; gap: 48px; margin-top: 64px;
+  flex-wrap: wrap;
+}
+.hero-stat { text-align: center; }
+.hero-stat-num {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 2.5rem; font-weight: 700; color: var(--accent-primary);
+}
+.hero-stat-label { font-size: 0.85rem; color: var(--text-muted); margin-top: 4px; }
+
+/* ===== SECTIONS ===== */
+.section {
+  max-width: 1400px; margin: 0 auto;
+  padding: 100px 32px;
+}
+.section-header { text-align: center; margin-bottom: 64px; }
+.section-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem; font-weight: 600;
+  color: var(--accent-primary); letter-spacing: 3px;
+  text-transform: uppercase; margin-bottom: 16px;
+}
+.section-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 800; letter-spacing: -1px;
+  margin-bottom: 16px;
+}
+.section-desc {
+  color: var(--text-secondary); max-width: 700px; margin: 0 auto;
+  font-size: 1.05rem; font-weight: 300;
+}
+
+/* ===== CARDS ===== */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 32px;
+  transition: all 0.3s;
+}
+.card:hover {
+  border-color: rgba(249,115,22,0.2);
+  box-shadow: var(--glow-orange);
+  transform: translateY(-4px);
+}
+
+/* ===== SEMANTIC BRAIN DIAGRAM ===== */
+.brain-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 24px;
+}
+.brain-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 32px;
+  position: relative;
+  overflow: hidden;
+}
+.brain-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+}
+.brain-card[data-color="orange"]::before { background: linear-gradient(90deg, var(--accent-primary), var(--accent-amber)); }
+.brain-card[data-color="blue"]::before { background: linear-gradient(90deg, var(--accent-secondary), #60A5FA); }
+.brain-card[data-color="teal"]::before { background: linear-gradient(90deg, var(--accent-teal), #2DD4BF); }
+.brain-card[data-color="violet"]::before { background: linear-gradient(90deg, var(--accent-violet), #A78BFA); }
+
+.brain-icon {
+  width: 56px; height: 56px;
+  border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 20px; font-size: 1.5rem;
+}
+.brain-card[data-color="orange"] .brain-icon { background: rgba(249,115,22,0.12); }
+.brain-card[data-color="blue"] .brain-icon { background: rgba(59,130,246,0.12); }
+.brain-card[data-color="teal"] .brain-icon { background: rgba(20,184,166,0.12); }
+.brain-card[data-color="violet"] .brain-icon { background: rgba(139,92,246,0.12); }
+
+.brain-card h3 { font-size: 1.2rem; font-weight: 700; margin-bottom: 10px; }
+.brain-card p { color: var(--text-secondary); font-size: 0.92rem; line-height: 1.7; }
+
+/* ===== FLOW DIAGRAM ===== */
+.flow-container {
+  display: flex; flex-direction: column; gap: 0; align-items: center;
+  position: relative; padding: 40px 0;
+}
+.flow-line {
+  width: 3px; height: 48px;
+  background: linear-gradient(180deg, var(--accent-primary), rgba(249,115,22,0.2));
+  position: relative;
+}
+.flow-line::after {
+  content: '▼'; position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%);
+  font-size: 0.6rem; color: var(--accent-primary);
+}
+.flow-step {
+  display: flex; align-items: center; gap: 24px;
+  width: 100%; max-width: 900px;
+}
+.flow-num {
+  width: 64px; height: 64px; min-width: 64px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.5rem; font-weight: 700;
+  border: 2px solid;
+}
+.flow-step:nth-child(4n+1) .flow-num { border-color: var(--accent-primary); color: var(--accent-primary); background: rgba(249,115,22,0.08); }
+.flow-step:nth-child(4n+3) .flow-num { border-color: var(--accent-secondary); color: var(--accent-secondary); background: rgba(59,130,246,0.08); }
+.flow-step:nth-child(4n+5) .flow-num { border-color: var(--accent-teal); color: var(--accent-teal); background: rgba(20,184,166,0.08); }
+.flow-step:nth-child(4n+7) .flow-num { border-color: var(--accent-violet); color: var(--accent-violet); background: rgba(139,92,246,0.08); }
+
+.flow-content {
+  flex: 1;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px 32px;
+}
+.flow-content h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 6px; }
+.flow-tools {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem; color: var(--accent-teal);
+  margin-bottom: 10px;
+}
+.flow-content p { color: var(--text-secondary); font-size: 0.9rem; }
+
+/* ===== TOKEN VISUALIZATION ===== */
+.token-viz {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 48px;
+  position: relative;
+  overflow: hidden;
+}
+.token-viz::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 30% 50%, rgba(59,130,246,0.06), transparent 70%);
+}
+.token-layers {
+  display: flex; flex-direction: column; gap: 16px;
+  position: relative;
+}
+.token-layer {
+  display: flex; align-items: center; gap: 16px;
+}
+.token-label {
+  width: 140px; min-width: 140px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem; font-weight: 600;
+  text-align: right;
+}
+.token-blocks {
+  display: flex; gap: 4px; flex: 1; overflow: hidden;
+}
+.token-block {
+  height: 40px; min-width: 18px;
+  border-radius: 4px;
+  flex: 1;
+  animation: tokenPulse 3s infinite ease-in-out;
+}
+.token-block:nth-child(odd) { animation-delay: 0.5s; }
+
+@keyframes tokenPulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+.layer-melody .token-label { color: var(--accent-primary); }
+.layer-melody .token-block { background: linear-gradient(135deg, rgba(249,115,22,0.3), rgba(249,115,22,0.8)); }
+.layer-harmony .token-label { color: var(--accent-secondary); }
+.layer-harmony .token-block { background: linear-gradient(135deg, rgba(59,130,246,0.3), rgba(59,130,246,0.8)); }
+.layer-rhythm .token-label { color: var(--accent-teal); }
+.layer-rhythm .token-block { background: linear-gradient(135deg, rgba(20,184,166,0.3), rgba(20,184,166,0.8)); }
+.layer-texture .token-label { color: var(--accent-violet); }
+.layer-texture .token-block { background: linear-gradient(135deg, rgba(139,92,246,0.3), rgba(139,92,246,0.8)); }
+.layer-voice .token-label { color: var(--accent-rose); }
+.layer-voice .token-block { background: linear-gradient(135deg, rgba(244,63,94,0.3), rgba(244,63,94,0.8)); }
+
+.token-timeline {
+  display: flex; justify-content: space-between;
+  margin-top: 16px; padding-left: 156px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem; color: var(--text-muted);
+}
+
+/* ===== PROMPT COMPARE ===== */
+.prompt-compare {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 32px;
+}
+.prompt-box {
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.prompt-header {
+  padding: 16px 24px;
+  font-weight: 700; font-size: 0.85rem;
+  letter-spacing: 0.5px;
+  display: flex; align-items: center; gap: 10px;
+}
+.prompt-bad .prompt-header { background: rgba(244,63,94,0.12); color: var(--accent-rose); border-bottom: 1px solid rgba(244,63,94,0.2); }
+.prompt-good .prompt-header { background: rgba(20,184,166,0.12); color: var(--accent-teal); border-bottom: 1px solid rgba(20,184,166,0.2); }
+.prompt-body {
+  background: var(--bg-card);
+  padding: 24px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.82rem;
+  line-height: 1.8;
+  color: var(--text-secondary);
+  min-height: 200px;
+  border: 1px solid var(--border);
+  border-top: 0;
+  border-radius: 0 0 var(--radius) var(--radius);
+}
+.prompt-body .tag { color: var(--accent-primary); font-weight: 600; }
+.prompt-body .meta { color: var(--accent-teal); }
+.prompt-body .desc { color: var(--accent-secondary); }
+.prompt-body .vocal { color: var(--accent-violet); }
+
+/* ===== METATAG REFERENCE ===== */
+.metatag-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+.metatag-item {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 20px 24px;
+  display: flex; align-items: center; gap: 16px;
+  transition: all 0.2s;
+}
+.metatag-item:hover { border-color: rgba(249,115,22,0.2); transform: translateY(-2px); }
+.metatag-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem; font-weight: 600;
+  color: var(--accent-primary);
+  background: rgba(249,115,22,0.08);
+  padding: 6px 14px; border-radius: 8px;
+  white-space: nowrap;
+}
+.metatag-info { flex: 1; }
+.metatag-eff { font-size: 0.75rem; font-weight: 600; margin-bottom: 2px; }
+.metatag-eff.high { color: var(--accent-teal); }
+.metatag-eff.mid { color: var(--accent-amber); }
+.metatag-eff.low { color: var(--accent-rose); }
+.metatag-desc { font-size: 0.8rem; color: var(--text-muted); }
+
+/* ===== ARCHITECTURE MAP (WAVEFORM STYLE) ===== */
+.arch-map {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 40px;
+  overflow-x: auto;
+}
+.arch-track {
+  display: flex; gap: 4px; align-items: flex-end;
+  min-height: 180px; padding-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 16px;
+  position: relative;
+}
+.arch-section {
+  flex: 1; min-width: 100px;
+  display: flex; flex-direction: column;
+  align-items: center; gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.arch-section:hover .arch-bar { filter: brightness(1.3); }
+.arch-bar {
+  width: 100%;
+  border-radius: 8px 8px 0 0;
+  transition: all 0.3s;
+  position: relative;
+}
+.arch-bar::after {
+  content: attr(data-dynamic);
+  position: absolute; top: 8px; left: 50%; transform: translateX(-50%);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem; color: rgba(255,255,255,0.7);
+  white-space: nowrap;
+}
+.arch-label {
+  font-size: 0.72rem; font-weight: 600;
+  color: var(--text-secondary);
+  text-align: center;
+}
+.arch-time {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem; color: var(--text-muted);
+}
+
+/* ===== TOOLS ECOSYSTEM ===== */
+.tools-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+.tool-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px;
+  display: flex; gap: 20px;
+  transition: all 0.3s;
+}
+.tool-card:hover { border-color: rgba(255,255,255,0.1); transform: translateY(-2px); }
+.tool-icon {
+  width: 48px; height: 48px; min-width: 48px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.3rem;
+}
+.tool-card h4 { font-size: 1rem; font-weight: 700; margin-bottom: 4px; }
+.tool-phases {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem; margin-bottom: 8px;
+}
+.tool-card p { color: var(--text-secondary); font-size: 0.85rem; }
+
+/* ===== MENTAL MAP / MIND MAP ===== */
+.mindmap {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 48px;
+  position: relative;
+  min-height: 500px;
+}
+.mindmap-center {
+  width: 180px; height: 180px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent-primary), #EA580C);
+  display: flex; align-items: center; justify-content: center;
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center; font-weight: 800;
+  font-size: 1rem; line-height: 1.3;
+  box-shadow: 0 0 60px rgba(249,115,22,0.3);
+  z-index: 2;
+}
+.mindmap-node {
+  position: absolute;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px 20px;
+  font-size: 0.82rem; font-weight: 600;
+  max-width: 180px; text-align: center;
+  z-index: 2;
+  transition: all 0.3s;
+}
+.mindmap-node:hover { transform: scale(1.05); border-color: var(--accent-primary); }
+.mindmap-node .node-sub {
+  font-weight: 400; font-size: 0.72rem; color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* SVG lines for mindmap */
+.mindmap svg {
+  position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1;
+}
+.mindmap svg line { stroke: rgba(249,115,22,0.2); stroke-width: 2; stroke-dasharray: 6,6; }
+
+/* ===== CHECKLIST ===== */
+.checklist {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+  gap: 16px;
+}
+.check-item {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 20px 24px;
+  display: flex; align-items: center; gap: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+  user-select: none;
+}
+.check-item:hover { border-color: rgba(249,115,22,0.2); }
+.check-item.checked { border-color: rgba(20,184,166,0.3); background: rgba(20,184,166,0.04); }
+.check-box {
+  width: 28px; height: 28px; min-width: 28px;
+  border: 2px solid var(--text-muted);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+.check-item.checked .check-box {
+  background: var(--accent-teal);
+  border-color: var(--accent-teal);
+  color: #fff;
+}
+.check-text { font-size: 0.9rem; font-weight: 500; }
+
+/* ===== ERRORS TABLE ===== */
+.error-table {
+  width: 100%; border-collapse: separate;
+  border-spacing: 0;
+  border-radius: var(--radius); overflow: hidden;
+  border: 1px solid var(--border);
+}
+.error-table th {
+  background: var(--bg-elevated);
+  padding: 16px 20px;
+  font-size: 0.8rem; font-weight: 700;
+  text-align: left; color: var(--text-primary);
+  letter-spacing: 0.5px; text-transform: uppercase;
+  border-bottom: 1px solid var(--border);
+}
+.error-table td {
+  padding: 14px 20px;
+  font-size: 0.88rem; color: var(--text-secondary);
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-card);
+}
+.error-table tr:last-child td { border-bottom: none; }
+.error-table tr:hover td { background: var(--bg-hover); }
+.error-tag {
+  display: inline-block;
+  padding: 2px 10px; border-radius: 6px;
+  font-size: 0.75rem; font-weight: 600;
+}
+.error-tag.bad { background: rgba(244,63,94,0.12); color: var(--accent-rose); }
+.error-tag.fix { background: rgba(20,184,166,0.12); color: var(--accent-teal); }
+
+/* ===== STYLE PROMPT BUILDER ===== */
+.builder {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 40px;
+}
+.builder-row {
+  display: flex; gap: 12px; margin-bottom: 16px;
+  flex-wrap: wrap; align-items: center;
+}
+.builder-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem; font-weight: 600;
+  min-width: 140px;
+  padding: 4px 0;
+}
+.builder-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+.builder-tag {
+  padding: 8px 16px;
+  border-radius: 100px;
+  font-size: 0.8rem; font-weight: 500;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  color: var(--text-secondary);
+  transition: all 0.2s;
+  user-select: none;
+}
+.builder-tag:hover { border-color: var(--accent-primary); color: var(--text-primary); }
+.builder-tag.selected {
+  background: rgba(249,115,22,0.12);
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+  font-weight: 600;
+}
+.builder-output {
+  margin-top: 32px;
+  background: var(--bg-deep);
+  border: 1px solid var(--border-accent);
+  border-radius: var(--radius-sm);
+  padding: 24px;
+}
+.builder-output-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem; color: var(--accent-primary);
+  margin-bottom: 8px; letter-spacing: 1px;
+}
+.builder-output-text {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.95rem; color: var(--text-primary);
+  line-height: 1.8;
+  word-break: break-all;
+}
+.builder-counter {
+  text-align: right; margin-top: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+}
+.builder-counter.ok { color: var(--accent-teal); }
+.builder-counter.warn { color: var(--accent-amber); }
+.builder-counter.over { color: var(--accent-rose); }
+
+/* ===== FOOTER ===== */
+.footer {
+  text-align: center;
+  padding: 64px 32px;
+  border-top: 1px solid var(--border);
+}
+.footer-brand {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.5rem; font-weight: 700;
+  color: var(--accent-primary); margin-bottom: 8px;
+}
+.footer-ceo { color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 4px; }
+.footer-copy { color: var(--text-muted); font-size: 0.8rem; }
+
+/* ===== DIVIDER ===== */
+.divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border), rgba(249,115,22,0.2), var(--border), transparent);
+  max-width: 1400px; margin: 0 auto;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 900px) {
+  .prompt-compare { grid-template-columns: 1fr; }
+  .flow-step { flex-direction: column; text-align: center; }
+  .flow-num { margin: 0 auto; }
+  .token-label { width: 80px; min-width: 80px; font-size: 0.6rem; }
+  .mindmap { min-height: 800px; }
+  .nav-links { display: none; }
+  .arch-track { overflow-x: auto; }
+  .section { padding: 60px 20px; }
+  .builder-row { flex-direction: column; align-items: flex-start; }
+}
+@media (max-width: 600px) {
+  .hero { padding: 100px 20px 60px; }
+  .hero-stats { gap: 24px; }
+  .checklist { grid-template-columns: 1fr; }
+  .brain-grid { grid-template-columns: 1fr; }
+}
+
+/* ===== ANIMATIONS ===== */
+.fade-up {
+  opacity: 0; transform: translateY(30px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.fade-up.visible { opacity: 1; transform: translateY(0); }
+.stagger-1 { transition-delay: 0.1s; }
+.stagger-2 { transition-delay: 0.2s; }
+.stagger-3 { transition-delay: 0.3s; }
+.stagger-4 { transition-delay: 0.4s; }
+
+/* ===== TIP CALLOUTS ===== */
+.tip {
+  background: rgba(249,115,22,0.06);
+  border-left: 3px solid var(--accent-primary);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  padding: 20px 24px;
+  margin: 24px 0;
+}
+.tip-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem; font-weight: 600;
+  color: var(--accent-primary); margin-bottom: 8px;
+  letter-spacing: 1px; text-transform: uppercase;
+}
+.tip p { color: var(--text-secondary); font-size: 0.9rem; }
+
+.info {
+  background: rgba(59,130,246,0.06);
+  border-left: 3px solid var(--accent-secondary);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  padding: 20px 24px;
+  margin: 24px 0;
+}
+.info-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem; font-weight: 600;
+  color: var(--accent-secondary); margin-bottom: 8px;
+  letter-spacing: 1px; text-transform: uppercase;
+}
+.info p { color: var(--text-secondary); font-size: 0.9rem; }
+
+/* Tabs */
+.tabs { display: flex; gap: 4px; margin-bottom: 24px; border-bottom: 1px solid var(--border); padding-bottom: 0; }
+.tab {
+  padding: 12px 24px; cursor: pointer;
+  font-size: 0.88rem; font-weight: 600;
+  color: var(--text-muted);
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+  background: none; border-top: none; border-left: none; border-right: none;
+}
+.tab:hover { color: var(--text-primary); }
+.tab.active { color: var(--accent-primary); border-bottom-color: var(--accent-primary); }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+</style>
+</head>
+<body>
+
+<!-- ===== NAV ===== -->
+<nav class="nav">
+  <div class="nav-inner">
+    <div class="nav-logo">
+      <svg viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="14" stroke="#F97316" stroke-width="2.5"/><path d="M10 20 L16 10 L22 20" stroke="#F97316" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="16" cy="22" r="2" fill="#F97316"/></svg>
+      AIWIS
+    </div>
+    <div class="nav-links">
+      <a href="#semantica">Semántica</a>
+      <a href="#tokens">Tokens</a>
+      <a href="#pipeline">Pipeline</a>
+      <a href="#prompts">Prompts</a>
+      <a href="#builder">Constructor</a>
+      <a href="#metatags">Metatags</a>
+      <a href="#tools">Herramientas</a>
+      <a href="#checklist">Checklist</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ===== HERO ===== -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-badge">🎵 AIWIS Music AI Lab</div>
+    <h1 class="hero-title">
+      Metodología de<br>
+      <span class="gradient">Control Total</span><br>
+      sobre IA Musical
+    </h1>
+    <p class="hero-subtitle">
+      Transforma Suno en tu estudio de grabación virtual. Entiende la semántica, domina los tokens de audio y conviértete en el Director de Orquesta de la IA.
+    </p>
+    <a href="#semantica" class="hero-cta">
+      Comenzar el Recorrido
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+    </a>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="hero-stat-num">7</div><div class="hero-stat-label">Fases del Pipeline</div></div>
+      <div class="hero-stat"><div class="hero-stat-num">80%</div><div class="hero-stat-label">Trabajo antes de Suno</div></div>
+      <div class="hero-stat"><div class="hero-stat-num">∞</div><div class="hero-stat-label">Control Creativo</div></div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ===== SECTION: CÓMO PIENSA LA IA ===== -->
+<section class="section" id="semantica">
+  <div class="section-header fade-up">
+    <div class="section-label">// FUNDAMENTOS</div>
+    <h2 class="section-title">Cómo "Piensa" la IA Musical</h2>
+    <p class="section-desc">
+      Entender el motor interno es la diferencia entre generar aleatoriamente y producir intencionalmente.
+    </p>
+  </div>
+
+  <div class="brain-grid">
+    <div class="brain-card fade-up" data-color="orange">
+      <div class="brain-icon">🧠</div>
+      <h3>El Intérprete (LLM)</h3>
+      <p>Tu prompt pasa primero por un modelo de lenguaje. No sabe de música, pero traduce tus palabras en <strong>vectores semánticos</strong> — representaciones matemáticas de conceptos como "melancólico", "acústico", "energético".</p>
+    </div>
+    <div class="brain-card fade-up stagger-1" data-color="blue">
+      <div class="brain-icon">🔊</div>
+      <h3>El Generador Acústico</h3>
+      <p>Los conceptos semánticos guían a un <strong>Transformer de audio</strong> que predice secuencialmente qué "token de sonido" viene después, generando melodía, armonía, ritmo y voz en capas coordinadas.</p>
+    </div>
+    <div class="brain-card fade-up stagger-2" data-color="teal">
+      <div class="brain-icon">📊</div>
+      <h3>Asociación Estadística</h3>
+      <p>El modelo NO entiende teoría musical. Entiende que millones de canciones etiquetadas como <strong>"Heavy Metal"</strong> tienen guitarras distorsionadas y baterías rápidas. Es asociación estadística pura.</p>
+    </div>
+    <div class="brain-card fade-up stagger-3" data-color="violet">
+      <div class="brain-icon">🎯</div>
+      <h3>Jerarquía de Peso</h3>
+      <p>No todas las palabras pesan igual. El <strong>género pesa más</strong> que un adjetivo secundario. Las primeras palabras del prompt tienen mayor influencia semántica. El orden importa.</p>
+    </div>
+  </div>
+
+  <div class="tip" style="margin-top:40px;">
+    <div class="tip-title">💡 Truco Semántico Clave</div>
+    <p>Usa <strong>inglés</strong> para los tags de estilo. El modelo fue entrenado predominantly con datos en inglés: "raspy male vocals" tiene una representación semántica mucho más rica que "voz masculina rasposa". Reserva el español para las letras.</p>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ===== SECTION: TOKENS ===== -->
+<section class="section" id="tokens">
+  <div class="section-header fade-up">
+    <div class="section-label">// ARQUITECTURA INTERNA</div>
+    <h2 class="section-title">Tokens de Audio: Visualización</h2>
+    <p class="section-desc">
+      El audio se comprime en tokens discretos usando EnCodec. Cada ~10ms se codifica en vectores numéricos en múltiples capas simultáneas.
+    </p>
+  </div>
+
+  <div class="token-viz fade-up">
+    <h3 style="font-size:1.1rem; margin-bottom:24px; color:var(--text-secondary);">Generación Multi-Capa en Tiempo Real</h3>
+    <div class="token-layers">
+      <div class="token-layer layer-melody">
+        <div class="token-label">MELODÍA</div>
+        <div class="token-blocks" id="melody-blocks"></div>
+      </div>
+      <div class="token-layer layer-harmony">
+        <div class="token-label">ARMONÍA</div>
+        <div class="token-blocks" id="harmony-blocks"></div>
+      </div>
+      <div class="token-layer layer-rhythm">
+        <div class="token-label">RITMO</div>
+        <div class="token-blocks" id="rhythm-blocks"></div>
+      </div>
+      <div class="token-layer layer-texture">
+        <div class="token-label">TEXTURA</div>
+        <div class="token-blocks" id="texture-blocks"></div>
+      </div>
+      <div class="token-layer layer-voice">
+        <div class="token-label">VOZ</div>
+        <div class="token-blocks" id="voice-blocks"></div>
+      </div>
+    </div>
+    <div class="token-timeline">
+      <span>0:00</span><span>0:05</span><span>0:10</span><span>0:15</span><span>0:20</span><span>0:25</span><span>0:30</span>
+    </div>
+  </div>
+
+  <div class="info" style="margin-top:32px;">
+    <div class="info-title">🔑 Implicación Crítica</div>
+    <p>El vocabulario de tokens es <strong>finito (~16,000 por codebook)</strong>. Tus instrucciones no "crean" sonidos, guían al modelo a <strong>seleccionar</strong> las combinaciones más apropiadas. Es como elegir colores de una paleta fija: no puedes inventar un color nuevo, pero puedes ser muy específico sobre cuál quieres.</p>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ===== SECTION: PIPELINE ===== -->
+<section class="section" id="pipeline">
+  <div class="section-header fade-up">
+    <div class="section-label">// METODOLOGÍA CENTRAL</div>
+    <h2 class="section-title">Pipeline de 7 Fases</h2>
+    <p class="section-desc">
+      El 80% del trabajo de calidad ocurre ANTES de escribir una instrucción en Suno. Cada fase alimenta a la siguiente.
+    </p>
+  </div>
+
+  <div class="flow-container">
+    <div class="flow-step fade-up">
+      <div class="flow-num">1</div>
+      <div class="flow-content">
+        <h3>Definición de Visión Artística</h3>
+        <div class="flow-tools">CLAUDE / CHATGPT + TU CONOCIMIENTO MUSICAL</div>
+        <p>Cristaliza tu visión: emoción central, sub-emociones por sección, 3-5 referencias sonoras, arquitectura temporal y restricciones explícitas. Usa Claude como brainstorming partner.</p>
+      </div>
+    </div>
+    <div class="flow-line"></div>
+    <div class="flow-step fade-up">
+      <div class="flow-num">2</div>
+      <div class="flow-content">
+        <h3>Ingeniería de Referencias Sonoras</h3>
+        <div class="flow-tools">DEMUCS / LALAL.AI + DAW (AUDACITY / REAPER)</div>
+        <p>Separa stems de tus references. Analiza: BPM exacto, tonalidad, rangos de frecuencia, reverb/delay. Crea un moodboard sonoro con timestamps precisos.</p>
+      </div>
+    </div>
+    <div class="flow-line"></div>
+    <div class="flow-step fade-up">
+      <div class="flow-num">3</div>
+      <div class="flow-content">
+        <h3>Mapa de Arquitectura Musical</h3>
+        <div class="flow-tools">CLAUDE + HOJA DE CÁLCULO</div>
+        <p>Blueprint completo sección por sección: duración, instrumentación detallada, dinámica (pp→ff), metatags de Suno sugeridas. El arreglo virtual completo.</p>
+      </div>
+    </div>
+    <div class="flow-line"></div>
+    <div class="flow-step fade-up">
+      <div class="flow-num">4</div>
+      <div class="flow-content">
+        <h3>Escritura y Optimización de Letras</h3>
+        <div class="flow-tools">CLAUDE + TU CREATIVIDAD LÍRICA</div>
+        <p>Optimiza densidad silábica por sección, inserta metatags de transición, agrega descriptores vocales inline y vocalizaciones estratégicas.</p>
+      </div>
+    </div>
+    <div class="flow-line"></div>
+    <div class="flow-step fade-up">
+      <div class="flow-num">5</div>
+      <div class="flow-content">
+        <h3>Style Prompt Engineering</h3>
+        <div class="flow-tools">CLAUDE + BASE DE DATOS DE TAGS</div>
+        <p>Construye el prompt de estilo con tags ordenados por peso semántico. Máximo 120 caracteres. Género → Sub-género → Instrumentación → Vocal → Emoción → Producción → Tempo.</p>
+      </div>
+    </div>
+    <div class="flow-line"></div>
+    <div class="flow-step fade-up">
+      <div class="flow-num">6</div>
+      <div class="flow-content">
+        <h3>Preparación de Audio de Referencia</h3>
+        <div class="flow-tools">DAW + DEMUCS + MUSICGEN</div>
+        <p>Prepara audio que condicione la generación: stem específico, loop propio, fragmento procesado o collage sonoro. Esta es tu herramienta más poderosa.</p>
+      </div>
+    </div>
+    <div class="flow-line"></div>
+    <div class="flow-step fade-up">
+      <div class="flow-num">7</div>
+      <div class="flow-content">
+        <h3>Ejecución Iterativa y Curado</h3>
+        <div class="flow-tools">SUNO + DAW PARA POST-PROCESO</div>
+        <p>Genera 4-8 variaciones. Evalúa contra tu mapa. Usa Extend para secciones problemáticas. Frankenstein las mejores partes. Post-procesa y masteriza.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ===== SECTION: PROMPT COMPARISON ===== -->
+<section class="section" id="prompts">
+  <div class="section-header fade-up">
+    <div class="section-label">// ANTES VS DESPUÉS</div>
+    <h2 class="section-title">Anatomía de un Prompt Profesional</h2>
+    <p class="section-desc">
+      La diferencia entre un resultado genérico y uno que captura tu visión está en la estructura y precisión del prompt.
+    </p>
+  </div>
+
+  <div class="prompt-compare fade-up">
+    <div class="prompt-box prompt-bad">
+      <div class="prompt-header">
+        <span>✗</span> USUARIO CASUAL
+      </div>
+      <div class="prompt-body">
+        <strong>Style:</strong> Canción triste de amor, estilo pop<br><br>
+        <strong>Letra:</strong><br>
+        Te fuiste y me dejaste solo<br>
+        Ya no sé qué hacer sin ti<br>
+        Las noches son muy largas<br>
+        Y el silencio me hace sufrir<br><br>
+        <span style="color:var(--accent-rose); font-size:0.75rem;">⚠ Sin metatags, sin estructura, texto en español en style, frases completas, sin descriptores vocales, sin control de dinámica</span>
+      </div>
+    </div>
+    <div class="prompt-box prompt-good">
+      <div class="prompt-header">
+        <span>✓</span> PRODUCTOR AIWIS
+      </div>
+      <div class="prompt-body">
+        <strong>Style:</strong> <span class="tag">indie pop</span>, <span class="desc">melancholy</span>, <span class="desc">slow tempo</span>, <span class="tag">acoustic piano</span>, <span class="tag">subtle strings</span>, <span class="vocal">intimate female vocals</span>, <span class="desc">cinematic</span><br><br>
+        <strong>Letra:</strong><br>
+        <span class="meta">[Intro - Solo piano, sparse notes]</span><br>
+        <span class="meta">(instrumental)</span><br><br>
+        <span class="meta">[Verse 1 - whispered vocals, soft]</span><br>
+        Las luces se apagan en el salón<br>
+        Tu sombra dibujada en la pared<br>
+        Cada nota que toco... se quiebra<br><br>
+        <span class="meta">[Pre-Chorus - strings enter, building]</span><br>
+        Y el eco de tu risa me persigue...<br><br>
+        <span class="meta">[Chorus - full band, emotional crescendo]</span><br>
+        Y ahora el silencio es tan ensordecedor<br>
+        Ohhh... ohhh...<br><br>
+        <span style="color:var(--accent-teal); font-size:0.75rem;">✓ Tags en inglés, metatags estructurales, descriptores vocales, dinámica controlada, vocalizaciones estratégicas</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ===== SECTION: ARCHITECTURE MAP ===== -->
+<section class="section" id="architecture">
+  <div class="section-header fade-up">
+    <div class="section-label">// MAPA DE ENERGÍA</div>
+    <h2 class="section-title">Arquitectura Musical: Mapa de Dinámica</h2>
+    <p class="section-desc">
+      Visualiza la energía de tu canción sección por sección. Planifica los climax y los valles antes de generar.
+    </p>
+  </div>
+
+  <div class="arch-map fade-up">
+    <div class="arch-track">
+      <div class="arch-section">
+        <div class="arch-bar" style="height:35px; background: linear-gradient(180deg, #3B82F6, #1D4ED8);" data-dynamic="pp→p"></div>
+        <div class="arch-label">Intro</div>
+        <div class="arch-time">0:00</div>
+      </div>
+      <div class="arch-section">
+        <div class="arch-bar" style="height:60px; background: linear-gradient(180deg, #8B5CF6, #6D28D9);" data-dynamic="p→mp"></div>
+        <div class="arch-label">Verso 1</div>
+        <div class="arch-time">0:15</div>
+      </div>
+      <div class="arch-section">
+        <div class="arch-bar" style="height:85px; background: linear-gradient(180deg, #F59E0B, #D97706);" data-dynamic="mp→mf"></div>
+        <div class="arch-label">Pre-Coro</div>
+        <div class="arch-time">0:55</div>
+      </div>
+      <div class="arch-section">
+        <div class="arch-bar" style="height:140px; background: linear-gradient(180deg, #F97316, #EA580C);" data-dynamic="f"></div>
+        <div class="arch-label">Coro</div>
+        <div class="arch-time">1:10</div>
+      </div>
+      <div class="arch-section">
+        <div class="arch-bar" style="height:55px; background: linear-gradient(180deg, #8B5CF6, #6D28D9);" data-dynamic="mp"></div>
+        <div class="arch-label">Verso 2</div>
+        <div class="arch-time">1:45</div>
+      </div>
+      <div class="arch-section">
+        <div class="arch-bar" style="height:30px; background: linear-gradient(180deg, #14B8A6, #0D9488);" data-dynamic="pp"></div>
+        <div class="arch-label">Bridge</div>
+        <div class="arch-time">2:25</div>
+      </div>
+      <div class="arch-section">
+        <div class="arch-bar" style="height:165px; background: linear-gradient(180deg, #F43F5E, #E11D48);" data-dynamic="ff"></div>
+        <div class="arch-label">Coro Final</div>
+        <div class="arch-time">2:55</div>
+      </div>
+      <div class="arch-section">
+        <div class="arch-bar" style="height:40px; background: linear-gradient(180deg, #3B82F6, #1D4ED8);" data-dynamic="f→pp"></div>
+        <div class="arch-label">Outro</div>
+        <div class="arch-time">3:35</div>
+      </div>
+    </div>
+    <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--text-muted);">
+      <span>🔇 Silencio</span>
+      <span>pp — p — mp — mf — f — ff</span>
+      <span>🔊 Máximo</span>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ===== SECTION: STYLE BUILDER ===== -->
+<section class="section" id="builder">
+  <div class="section-header fade-up">
+    <div class="section-label">// HERRAMIENTA INTERACTIVA</div>
+    <h2 class="section-title">Constructor de Style Prompt</h2>
+    <p class="section-desc">
+      Selecciona tags por categoría y construye tu prompt optimizado en tiempo real. Recuerda: máximo 120 caracteres para máxima efectividad.
+    </p>
+  </div>
+
+  <div class="builder fade-up" id="style-builder">
+    <div class="builder-row">
+      <div class="builder-label" style="color:var(--accent-primary);">GÉNERO</div>
+      <div class="builder-tags" data-cat="genre">
+        <span class="builder-tag" data-val="indie pop">indie pop</span>
+        <span class="builder-tag" data-val="art rock">art rock</span>
+        <span class="builder-tag" data-val="neo-soul">neo-soul</span>
+        <span class="builder-tag" data-val="dream pop">dream pop</span>
+        <span class="builder-tag" data-val="alt rock">alt rock</span>
+        <span class="builder-tag" data-val="folk">folk</span>
+        <span class="builder-tag" data-val="R&B">R&B</span>
+        <span class="builder-tag" data-val="electronic">electronic</span>
+        <span class="builder-tag" data-val="jazz">jazz</span>
+        <span class="builder-tag" data-val="lo-fi hip hop">lo-fi hip hop</span>
+      </div>
+    </div>
+    <div class="builder-row">
+      <div class="builder-label" style="color:var(--accent-secondary);">INSTRUMENTOS</div>
+      <div class="builder-tags" data-cat="inst">
+        <span class="builder-tag" data-val="acoustic guitar">acoustic guitar</span>
+        <span class="builder-tag" data-val="electric guitar">electric guitar</span>
+        <span class="builder-tag" data-val="grand piano">grand piano</span>
+        <span class="builder-tag" data-val="strings">strings</span>
+        <span class="builder-tag" data-val="synth pads">synth pads</span>
+        <span class="builder-tag" data-val="brass">brass</span>
+        <span class="builder-tag" data-val="cello">cello</span>
+        <span class="builder-tag" data-val="drum machine">drum machine</span>
+      </div>
+    </div>
+    <div class="builder-row">
+      <div class="builder-label" style="color:var(--accent-violet);">VOCAL</div>
+      <div class="builder-tags" data-cat="vocal">
+        <span class="builder-tag" data-val="intimate female vocals">intimate female vocals</span>
+        <span class="builder-tag" data-val="raspy male vocals">raspy male vocals</span>
+        <span class="builder-tag" data-val="choir harmonies">choir harmonies</span>
+        <span class="builder-tag" data-val="ethereal vocals">ethereal vocals</span>
+        <span class="builder-tag" data-val="baritone">baritone</span>
+        <span class="builder-tag" data-val="falsetto">falsetto</span>
+      </div>
+    </div>
+    <div class="builder-row">
+      <div class="builder-label" style="color:var(--accent-teal);">EMOCIÓN</div>
+      <div class="builder-tags" data-cat="mood">
+        <span class="builder-tag" data-val="melancholy">melancholy</span>
+        <span class="builder-tag" data-val="nostalgic">nostalgic</span>
+        <span class="builder-tag" data-val="cinematic">cinematic</span>
+        <span class="builder-tag" data-val="uplifting">uplifting</span>
+        <span class="builder-tag" data-val="dark">dark</span>
+        <span class="builder-tag" data-val="intimate">intimate</span>
+        <span class="builder-tag" data-val="epic">epic</span>
+        <span class="builder-tag" data-val="dreamy">dreamy</span>
+      </div>
+    </div>
+    <div class="builder-row">
+      <div class="builder-label" style="color:var(--accent-amber);">PRODUCCIÓN</div>
+      <div class="builder-tags" data-cat="prod">
+        <span class="builder-tag" data-val="lo-fi">lo-fi</span>
+        <span class="builder-tag" data-val="polished studio">polished studio</span>
+        <span class="builder-tag" data-val="live recording">live recording</span>
+        <span class="builder-tag" data-val="reverb-heavy">reverb-heavy</span>
+        <span class="builder-tag" data-val="analog warmth">analog warmth</span>
+        <span class="builder-tag" data-val="minimalist">minimalist</span>
+      </div>
+    </div>
+    <div class="builder-row">
+      <div class="builder-label" style="color:var(--accent-rose);">TEMPO</div>
+      <div class="builder-tags" data-cat="tempo">
+        <span class="builder-tag" data-val="slow tempo">slow tempo</span>
+        <span class="builder-tag" data-val="72 bpm">72 bpm</span>
+        <span class="builder-tag" data-val="100 bpm">100 bpm</span>
+        <span class="builder-tag" data-val="120 bpm">120 bpm</span>
+        <span class="builder-tag" data-val="140 bpm">140 bpm</span>
+        <span class="builder-tag" data-val="high energy">high energy</span>
+      </div>
+    </div>
+
+    <div class="builder-output">
+      <div class="builder-output-label">STYLE PROMPT GENERADO →</div>
+      <div class="builder-output-text" id="builder-result">Selecciona tags arriba para construir tu prompt...</div>
+      <div class="builder-counter ok" id="builder-count"></div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ===== SECTION: METATAGS ===== -->
+<section class="section" id="metatags">
+  <div class="section-header fade-up">
+    <div class="section-label">// REFERENCIA RÁPIDA</div>
+    <h2 class="section-title">Catálogo de Metatags</h2>
+    <p class="section-desc">
+      Efectividad probada de cada metatag. Construye tu catálogo personal basado en tus propias pruebas.
+    </p>
+  </div>
+
+  <div class="metatag-grid fade-up">
+    <div class="metatag-item"><div class="metatag-tag">[Intro]</div><div class="metatag-info"><div class="metatag-eff high">● ALTA</div><div class="metatag-desc">Siempre define inicio instrumental</div></div></div>
+    <div class="metatag-item"><div class="metatag-tag">[Verse]</div><div class="metatag-info"><div class="metatag-eff high">● ALTA</div><div class="metatag-desc">Estructura verso/coro consistente</div></div></div>
+    <div class="metatag-item"><div class="metatag-tag">[Chorus]</div><div class="metatag-info"><div class="metatag-eff high">● ALTA</div><div class="metatag-desc">Incremento natural de energía</div></div></div>
+    <div class="metatag-item"><div class="metatag-tag">[Pre-Chorus]</div><div class="metatag-info"><div class="metatag-eff high">● ALTA</div><div class="metatag-desc">Transición efectiva al coro</div></div></div>
+    <div class="metatag-item"><div class="metatag-tag">[Bridge]</div><div class="metatag-info"><div class="metatag-eff high">● ALTA</div><div class="metatag-desc">Contraste bien ejecutado</div></div></div>
+    <div class="metatag-item"><div class="metatag-tag">[Guitar Solo]</div><div class="metatag-info"><div class="metatag-eff mid">● MEDIA-ALTA</div><div class="metatag-desc">Requiere guitarras en style</div></div></div>
+    <div class="metatag-item"><div class="metatag-tag">[Build-up]</div><div class="metatag-info"><div class="metatag-eff mid">● MEDIA</div><div class="metatag-desc">Mejor en electrónica/EDM</div></div></div>
+    <div class="metatag-item"><div class="metatag-tag">[Drop]</div><div class="metatag-info"><div class="metatag-eff mid">● MEDIA</div><div class="metatag-desc">Efectivo en EDM, impredecible en rock</div></div></div>
+    <div class="metatag-item"><div class="metatag-tag">[Acoustic Breakdown]</div><div class="metatag-info"><div class="metatag-eff mid">● MEDIA</div><div class="metatag-desc">Necesita arreglo previo que reducir</div></div></div>
+    <div class="metatag-item"><div class="metatag-tag">[Outro]</div><div class="metatag-info"><div class="metatag-eff mid">● MEDIA</div><div class="metatag-desc">Funciona pero puede ser abrupto</div></div></div>
+    <div class="metatag-item"><div class="metatag-tag">[Fade Out]</div><div class="metatag-info"><div class="metatag-eff low">● MEDIA-BAJA</div><div class="metatag-desc">A veces el modelo lo ignora</div></div></div>
+    <div class="metatag-item"><div class="metatag-tag">[Key Change]</div><div class="metatag-info"><div class="metatag-eff low">● BAJA</div><div class="metatag-desc">Raramente ejecuta cambio tonal real</div></div></div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ===== SECTION: MIND MAP ===== -->
+<section class="section">
+  <div class="section-header fade-up">
+    <div class="section-label">// MAPA MENTAL</div>
+    <h2 class="section-title">Ecosistema de Control Completo</h2>
+    <p class="section-desc">
+      Tu rol como productor conecta todas las dimensiones del proceso creativo con IA.
+    </p>
+  </div>
+
+  <div class="mindmap fade-up" style="height:560px;">
+    <svg viewBox="0 0 100 100" preserveAspectRatio="none">
+      <line x1="50%" y1="50%" x2="15%" y2="12%" /><line x1="50%" y1="50%" x2="85%" y2="12%" />
+      <line x1="50%" y1="50%" x2="8%" y2="50%" /><line x1="50%" y1="50%" x2="92%" y2="50%" />
+      <line x1="50%" y1="50%" x2="15%" y2="88%" /><line x1="50%" y1="50%" x2="85%" y2="88%" />
+    </svg>
+    <div class="mindmap-center">TÚ<br>PRODUCTOR<br>AIWIS</div>
+    <div class="mindmap-node" style="top:4%;left:5%;">
+      🧠 Semántica
+      <div class="node-sub">Embeddings, vectores, peso de palabras</div>
+    </div>
+    <div class="mindmap-node" style="top:4%;right:5%;">
+      🔊 Tokens Audio
+      <div class="node-sub">EnCodec, codebooks, vocabulario finito</div>
+    </div>
+    <div class="mindmap-node" style="top:42%;left:0%;">
+      🎸 Referencias
+      <div class="node-sub">Stems, moodboard, análisis espectral</div>
+    </div>
+    <div class="mindmap-node" style="top:42%;right:0%;">
+      📝 Letras
+      <div class="node-sub">Densidad silábica, metatags inline</div>
+    </div>
+    <div class="mindmap-node" style="bottom:4%;left:5%;">
+      🎛️ Style Prompt
+      <div class="node-sub">Tags ordenados, 120 chars max</div>
+    </div>
+    <div class="mindmap-node" style="bottom:4%;right:5%;">
+      🔄 Iteración
+      <div class="node-sub">4-8 variaciones, frankenstein, post-proceso</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ===== SECTION: TOOLS ===== -->
+<section class="section" id="tools">
+  <div class="section-header fade-up">
+    <div class="section-label">// ECOSISTEMA</div>
+    <h2 class="section-title">Herramientas del Pipeline</h2>
+    <p class="section-desc">Cada herramienta tiene un rol específico. Úsalas en la fase correcta.</p>
+  </div>
+
+  <div class="tools-grid">
+    <div class="tool-card fade-up">
+      <div class="tool-icon" style="background:rgba(139,92,246,0.12);">🤖</div>
+      <div>
+        <h4>Claude / ChatGPT</h4>
+        <div class="tool-phases" style="color:var(--accent-violet);">FASES 1, 3, 4, 5, 7</div>
+        <p>Brainstorming, mapas de arquitectura, optimización de letras, generación de style prompts, análisis de resultados</p>
+      </div>
+    </div>
+    <div class="tool-card fade-up stagger-1">
+      <div class="tool-icon" style="background:rgba(59,130,246,0.12);">🎚️</div>
+      <div>
+        <h4>Demucs / Lalal.ai</h4>
+        <div class="tool-phases" style="color:var(--accent-secondary);">FASE 2</div>
+        <p>Separación de stems para análisis de referencia y extracción de texturas específicas</p>
+      </div>
+    </div>
+    <div class="tool-card fade-up stagger-2">
+      <div class="tool-icon" style="background:rgba(20,184,166,0.12);">🎛️</div>
+      <div>
+        <h4>Audacity / Reaper</h4>
+        <div class="tool-phases" style="color:var(--accent-teal);">FASES 2, 6, 7</div>
+        <p>Análisis de audio, preparación de referencias, collages sonoros, post-proceso y masterización</p>
+      </div>
+    </div>
+    <div class="tool-card fade-up stagger-3">
+      <div class="tool-icon" style="background:rgba(249,115,22,0.12);">🎵</div>
+      <div>
+        <h4>Suno AI</h4>
+        <div class="tool-phases" style="color:var(--accent-primary);">FASE 7</div>
+        <p>Generación de música basada en todo el pipeline previo preparado</p>
+      </div>
+    </div>
+    <div class="tool-card fade-up">
+      <div class="tool-icon" style="background:rgba(244,63,94,0.12);">🎹</div>
+      <div>
+        <h4>AIVA / Amper</h4>
+        <div class="tool-phases" style="color:var(--accent-rose);">FASE 3</div>
+        <p>Generación de progresiones armónicas y estructuras MIDI como referencia previa</p>
+      </div>
+    </div>
+    <div class="tool-card fade-up stagger-1">
+      <div class="tool-icon" style="background:rgba(245,158,11,0.12);">🔬</div>
+      <div>
+        <h4>RipX / iZotope RX</h4>
+        <div class="tool-phases" style="color:var(--accent-amber);">FASES 2, 7</div>
+        <p>Análisis espectral avanzado de referencias y limpieza de audio generado</p>
+      </div>
+    </div>
+    <div class="tool-card fade-up stagger-2">
+      <div class="tool-icon" style="background:rgba(59,130,246,0.12);">🧬</div>
+      <div>
+        <h4>MusicGen (Meta)</h4>
+        <div class="tool-phases" style="color:var(--accent-secondary);">FASE 6</div>
+        <p>Generación de clips instrumentales cortos de referencia para alimentar a Suno</p>
+      </div>
+    </div>
+    <div class="tool-card fade-up stagger-3">
+      <div class="tool-icon" style="background:rgba(139,92,246,0.12);">🎙️</div>
+      <div>
+        <h4>Udio</h4>
+        <div class="tool-phases" style="color:var(--accent-violet);">FASE 7</div>
+        <p>Alternativa a Suno; útil para comparar resultados con el mismo paquete de instrucciones</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ===== SECTION: ERRORS ===== -->
+<section class="section">
+  <div class="section-header fade-up">
+    <div class="section-label">// ERRORES COMUNES</div>
+    <h2 class="section-title">Lo que NO Debes Hacer</h2>
+  </div>
+
+  <div class="fade-up" style="overflow-x:auto;">
+    <table class="error-table">
+      <thead>
+        <tr><th>Error</th><th>Por qué ocurre</th><th>Solución</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><span class="error-tag bad">✗</span> Frases completas en Style</td><td>El LLM parsea mejor tags separados</td><td><span class="error-tag fix">✓</span> Tags cortos separados por comas</td></tr>
+        <tr><td><span class="error-tag bad">✗</span> Ignorar orden de tags</td><td>Primeros términos = mayor peso</td><td><span class="error-tag fix">✓</span> Género primero, detalles después</td></tr>
+        <tr><td><span class="error-tag bad">✗</span> Sin metatags estructurales</td><td>El modelo improvisa la forma</td><td><span class="error-tag fix">✓</span> Siempre [Intro] [Verse] [Chorus]</td></tr>
+        <tr><td><span class="error-tag bad">✗</span> Pedir teoría musical</td><td>No entiende "acorde de Dm7"</td><td><span class="error-tag fix">✓</span> Describe texturas y emociones</td></tr>
+        <tr><td><span class="error-tag bad">✗</span> Audio contradice texto</td><td>Audio pesa MÁS que texto</td><td><span class="error-tag fix">✓</span> Alinea audio ref. con style</td></tr>
+        <tr><td><span class="error-tag bad">✗</span> Un solo intento</td><td>Variabilidad inherente del modelo</td><td><span class="error-tag fix">✓</span> Genera 4-8 variaciones mínimo</td></tr>
+        <tr><td><span class="error-tag bad">✗</span> Mezclar idiomas en style</td><td>Embeddings inglés más robustos</td><td><span class="error-tag fix">✓</span> Style en inglés, letra libre</td></tr>
+        <tr><td><span class="error-tag bad">✗</span> Style &gt;120 caracteres</td><td>Suno trunca y pierde info</td><td><span class="error-tag fix">✓</span> Conciso; detalle extra en metatags</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ===== SECTION: CHECKLIST ===== -->
+<section class="section" id="checklist">
+  <div class="section-header fade-up">
+    <div class="section-label">// VERIFICACIÓN FINAL</div>
+    <h2 class="section-title">Checklist Antes de Generar</h2>
+    <p class="section-desc">Verifica cada punto antes de entrar a Suno. Haz clic para marcar completados.</p>
+  </div>
+
+  <div class="checklist fade-up" id="checklist-container">
+    <div class="check-item" onclick="this.classList.toggle('checked')">
+      <div class="check-box">✓</div>
+      <div class="check-text">Visión artística documentada con emoción central y sub-emociones</div>
+    </div>
+    <div class="check-item" onclick="this.classList.toggle('checked')">
+      <div class="check-box">✓</div>
+      <div class="check-text">Referencias sonoras analizadas con stems separados</div>
+    </div>
+    <div class="check-item" onclick="this.classList.toggle('checked')">
+      <div class="check-box">✓</div>
+      <div class="check-text">Moodboard sonoro con timestamps precisos creado</div>
+    </div>
+    <div class="check-item" onclick="this.classList.toggle('checked')">
+      <div class="check-box">✓</div>
+      <div class="check-text">Mapa de arquitectura musical completo (sección por sección)</div>
+    </div>
+    <div class="check-item" onclick="this.classList.toggle('checked')">
+      <div class="check-box">✓</div>
+      <div class="check-text">Dinámicas planificadas (pp → ff) para cada sección</div>
+    </div>
+    <div class="check-item" onclick="this.classList.toggle('checked')">
+      <div class="check-box">✓</div>
+      <div class="check-text">Letras optimizadas con densidad silábica ajustada</div>
+    </div>
+    <div class="check-item" onclick="this.classList.toggle('checked')">
+      <div class="check-box">✓</div>
+      <div class="check-text">Metatags estructurales insertadas en la letra</div>
+    </div>
+    <div class="check-item" onclick="this.classList.toggle('checked')">
+      <div class="check-box">✓</div>
+      <div class="check-text">Style prompt ≤ 120 chars con tags por peso semántico</div>
+    </div>
+    <div class="check-item" onclick="this.classList.toggle('checked')">
+      <div class="check-box">✓</div>
+      <div class="check-text">Audio de referencia preparado y alineado con el style</div>
+    </div>
+    <div class="check-item" onclick="this.classList.toggle('checked')">
+      <div class="check-box">✓</div>
+      <div class="check-text">Plan de iteración definido: cuántas variaciones y criterios</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ===== FORMULA FINAL ===== -->
+<section class="section" style="text-align:center;">
+  <div class="fade-up">
+    <div class="section-label">// FÓRMULA</div>
+    <h2 class="section-title" style="margin-bottom:40px;">Tu Ecuación de Control Total</h2>
+    <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:12px; align-items:center; font-family:'JetBrains Mono',monospace; font-size:clamp(0.7rem,1.5vw,0.95rem);">
+      <span style="background:rgba(249,115,22,0.12); color:var(--accent-primary); padding:12px 20px; border-radius:10px; font-weight:600;">Visión Clara</span>
+      <span style="color:var(--text-muted);">+</span>
+      <span style="background:rgba(59,130,246,0.12); color:var(--accent-secondary); padding:12px 20px; border-radius:10px; font-weight:600;">Referencias</span>
+      <span style="color:var(--text-muted);">+</span>
+      <span style="background:rgba(20,184,166,0.12); color:var(--accent-teal); padding:12px 20px; border-radius:10px; font-weight:600;">Mapa Técnico</span>
+      <span style="color:var(--text-muted);">+</span>
+      <span style="background:rgba(139,92,246,0.12); color:var(--accent-violet); padding:12px 20px; border-radius:10px; font-weight:600;">Letras Opt.</span>
+      <span style="color:var(--text-muted);">+</span>
+      <span style="background:rgba(245,158,11,0.12); color:var(--accent-amber); padding:12px 20px; border-radius:10px; font-weight:600;">Style Preciso</span>
+      <span style="color:var(--text-muted);">+</span>
+      <span style="background:rgba(244,63,94,0.12); color:var(--accent-rose); padding:12px 20px; border-radius:10px; font-weight:600;">Audio Ref.</span>
+      <span style="color:var(--text-muted);">+</span>
+      <span style="background:rgba(249,115,22,0.12); color:var(--accent-primary); padding:12px 20px; border-radius:10px; font-weight:600;">Iteración</span>
+      <span style="color:var(--text-muted); font-size:1.5rem;">=</span>
+      <span style="background:linear-gradient(135deg,var(--accent-primary),#EA580C); color:#fff; padding:14px 28px; border-radius:12px; font-weight:700; font-size:1.1em; box-shadow:0 4px 20px rgba(249,115,22,0.3);">CONTROL TOTAL</span>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer class="footer">
+  <div class="footer-brand">AIWIS</div>
+  <div class="footer-ceo">CEO — Armin Salazar</div>
+  <div class="footer-copy">Music AI Lab · Metodología de Control Total sobre IA Musical · 2026</div>
+</footer>
+
+<!-- ===== SCRIPTS ===== -->
+<script>
+// Token blocks generation
+['melody','harmony','rhythm','texture','voice'].forEach(layer => {
+  const container = document.getElementById(layer + '-blocks');
+  const count = 28 + Math.floor(Math.random() * 8);
+  for (let i = 0; i < count; i++) {
+    const block = document.createElement('div');
+    block.className = 'token-block';
+    block.style.animationDelay = (Math.random() * 3) + 's';
+    block.style.animationDuration = (2 + Math.random() * 2) + 's';
+    container.appendChild(block);
+  }
+});
+
+// Style Builder
+const selected = {};
+document.querySelectorAll('.builder-tag').forEach(tag => {
+  tag.addEventListener('click', () => {
+    tag.classList.toggle('selected');
+    updateBuilder();
+  });
+});
+
+function updateBuilder() {
+  const tags = [];
+  document.querySelectorAll('.builder-tag.selected').forEach(t => tags.push(t.dataset.val));
+  const result = document.getElementById('builder-result');
+  const counter = document.getElementById('builder-count');
+  if (tags.length === 0) {
+    result.textContent = 'Selecciona tags arriba para construir tu prompt...';
+    counter.textContent = '';
+    return;
+  }
+  const prompt = tags.join(', ');
+  result.textContent = prompt;
+  const len = prompt.length;
+  counter.textContent = len + ' / 120 caracteres';
+  counter.className = 'builder-counter ' + (len <= 100 ? 'ok' : len <= 120 ? 'warn' : 'over');
+}
+
+// Scroll animation
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+// Active nav link
+const sections = document.querySelectorAll('section[id]');
+const navLinks = document.querySelectorAll('.nav-links a');
+window.addEventListener('scroll', () => {
+  let current = '';
+  sections.forEach(section => {
+    if (window.scrollY >= section.offsetTop - 200) {
+      current = section.getAttribute('id');
+    }
+  });
+  navLinks.forEach(link => {
+    link.classList.remove('active');
+    if (link.getAttribute('href') === '#' + current) link.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>

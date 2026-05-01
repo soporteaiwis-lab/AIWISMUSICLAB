@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ArmonIA — Master Framework v1.0</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #08090F;
+  --bg2: #0F1119;
+  --bg3: #161A26;
+  --bg4: #1E2336;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.13);
+  --text: #ECF0FA;
+  --text2: #8B92A8;
+  --text3: #545C74;
+  --gemini: #4285F4;
+  --gemini2: #34A853;
+  --violet: #7C6FFF;
+  --cyan: #00D2FF;
+  --orange: #FF7A2F;
+  --green: #22D3A3;
+  --pink: #FF5FA0;
+  --yellow: #FFD23F;
+  --red: #FF4757;
+  --r: 14px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;line-height:1.7;overflow-x:hidden;}
+::selection{background:rgba(124,111,255,.3);color:#fff;}
+::-webkit-scrollbar{width:5px;} ::-webkit-scrollbar-track{background:var(--bg);} ::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:10px;}
+
+/* NOISE OVERLAY */
+body::before{content:'';position:fixed;inset:0;background:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.025'/%3E%3C/svg%3E");pointer-events:none;z-index:9999;}
+
+/* STICKY NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(8,9,15,.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:14px 32px;display:flex;align-items:center;justify-content:space-between;}
+.nav-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.2rem;letter-spacing:-.5px;display:flex;align-items:center;gap:8px;}
+.nav-logo .ia{color:var(--violet);}
+.nav-badge{font-size:9px;background:rgba(124,111,255,.15);color:var(--violet);border:1px solid rgba(124,111,255,.3);padding:2px 8px;border-radius:20px;font-weight:700;letter-spacing:.5px;}
+.nav-links{display:flex;gap:4px;}
+.nav-links a{color:var(--text2);text-decoration:none;font-size:12px;font-weight:500;padding:5px 12px;border-radius:8px;transition:all .2s;}
+.nav-links a:hover{color:var(--text);background:var(--bg3);}
+
+/* HERO */
+.hero{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:120px 32px 80px;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-20%;left:50%;transform:translateX(-50%);width:800px;height:800px;background:radial-gradient(ellipse,rgba(124,111,255,.12) 0%,transparent 65%);pointer-events:none;}
+.hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:200px;background:linear-gradient(to top,var(--bg),transparent);pointer-events:none;}
+.hero-inner{max-width:900px;text-align:center;position:relative;z-index:1;}
+.hero-tag{display:inline-flex;align-items:center;gap:6px;background:rgba(66,133,244,.1);border:1px solid rgba(66,133,244,.25);color:var(--gemini);border-radius:30px;padding:5px 14px;font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;margin-bottom:24px;}
+.hero-tag .dot{width:6px;height:6px;border-radius:50%;background:var(--gemini);animation:pulse 1.2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+h1{font-family:'Syne',sans-serif;font-size:clamp(2.5rem,6vw,4.5rem);font-weight:800;line-height:1.05;letter-spacing:-1.5px;margin-bottom:20px;}
+h1 .grad{background:linear-gradient(135deg,var(--violet),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.hero-sub{font-size:1.1rem;color:var(--text2);max-width:680px;margin:0 auto 40px;line-height:1.7;}
+.stack-pills{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:48px;}
+.sp{background:var(--bg3);border:1px solid var(--border2);border-radius:30px;padding:6px 14px;font-size:12px;font-weight:600;color:var(--text2);}
+.sp.primary{border-color:rgba(66,133,244,.4);color:var(--gemini);background:rgba(66,133,244,.08);}
+.sp.violet{border-color:rgba(124,111,255,.4);color:var(--violet);background:rgba(124,111,255,.08);}
+.sp.green{border-color:rgba(34,211,163,.4);color:var(--green);background:rgba(34,211,163,.08);}
+.sp.orange{border-color:rgba(255,122,47,.4);color:var(--orange);background:rgba(255,122,47,.08);}
+.scroll-cue{display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--text3);font-size:11px;animation:bounce 2s infinite;}
+@keyframes bounce{0%,100%{transform:translateY(0);}50%{transform:translateY(6px);}}
+
+/* SECTIONS */
+section{padding:80px 32px;max-width:1100px;margin:0 auto;}
+.sec-label{font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--violet);margin-bottom:8px;}
+.sec-title{font-family:'Syne',sans-serif;font-size:clamp(1.6rem,3vw,2.4rem);font-weight:800;letter-spacing:-.5px;margin-bottom:12px;}
+.sec-desc{color:var(--text2);max-width:640px;font-size:0.95rem;}
+
+/* STEP CARDS */
+.steps{display:flex;flex-direction:column;gap:2px;margin-top:40px;}
+.step{display:grid;grid-template-columns:60px 1fr;gap:0;cursor:pointer;}
+.step-connector{display:flex;flex-direction:column;align-items:center;}
+.step-num{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:1rem;flex-shrink:0;border:2px solid var(--border2);color:var(--text3);transition:all .3s;}
+.step-line{width:2px;flex:1;min-height:20px;background:var(--border);margin:4px 0;}
+.step-body{padding:0 0 32px 20px;}
+.step-header{display:flex;align-items:flex-start;gap:12px;padding:10px 0;}
+.step-meta{flex:1;}
+.step-title{font-family:'Syne',sans-serif;font-weight:700;font-size:1.05rem;margin-bottom:2px;}
+.step-subtitle{font-size:11px;color:var(--text3);font-weight:500;letter-spacing:.3px;}
+.step-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px;}
+.step-tag{font-size:10px;font-weight:600;border-radius:5px;padding:2px 7px;}
+.step-content{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:20px 24px;display:none;animation:fadeIn .25s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:translateY(0);}}
+.step-content.open{display:block;}
+.step.active .step-num{border-color:var(--violet);color:var(--violet);background:rgba(124,111,255,.1);box-shadow:0 0 20px rgba(124,111,255,.2);}
+.step.active .step-title{color:var(--violet);}
+
+/* CARDS GRID */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-top:32px;}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:20px 22px;transition:all .25s;}
+.card:hover{border-color:var(--border2);transform:translateY(-2px);}
+.card-icon{font-size:1.4rem;margin-bottom:10px;}
+.card-title{font-family:'Syne',sans-serif;font-weight:700;font-size:.95rem;margin-bottom:6px;}
+.card-desc{font-size:12px;color:var(--text2);line-height:1.6;}
+.card.accent-violet{border-color:rgba(124,111,255,.2);background:rgba(124,111,255,.05);}
+.card.accent-blue{border-color:rgba(66,133,244,.2);background:rgba(66,133,244,.05);}
+.card.accent-green{border-color:rgba(34,211,163,.2);background:rgba(34,211,163,.05);}
+.card.accent-orange{border-color:rgba(255,122,47,.2);background:rgba(255,122,47,.05);}
+
+/* CODE BLOCKS */
+.code-block{background:var(--bg);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin:14px 0;}
+.code-header{background:var(--bg3);padding:8px 14px;display:flex;justify-content:space-between;align-items:center;}
+.code-header span{font-size:10px;font-weight:700;letter-spacing:.5px;color:var(--text3);text-transform:uppercase;font-family:'DM Mono',monospace;}
+.code-header button{background:none;border:1px solid var(--border2);color:var(--text2);border-radius:5px;padding:3px 10px;font-size:10px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;}
+.code-header button:hover{border-color:var(--green);color:var(--green);}
+.code-header button.copied{border-color:var(--green);color:var(--green);}
+pre{padding:18px 20px;font-family:'DM Mono',monospace;font-size:12px;line-height:1.75;color:#CDD9F5;overflow-x:auto;white-space:pre-wrap;word-break:break-word;}
+.kw{color:#7C6FFF;} .str{color:#22D3A3;} .com{color:#545C74;font-style:italic;} .fn{color:#FF7A2F;} .num{color:#FFD23F;} .var{color:#00D2FF;} .tag{color:#FF5FA0;}
+
+/* MASTER PROMPT SECTION */
+.prompt-box{background:var(--bg2);border:1px solid rgba(124,111,255,.25);border-radius:var(--r);overflow:hidden;margin-top:32px;}
+.prompt-box-header{background:rgba(124,111,255,.1);padding:14px 20px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(124,111,255,.2);}
+.prompt-box-title{font-family:'Syne',sans-serif;font-weight:700;font-size:.9rem;color:var(--violet);}
+.prompt-content{padding:20px;font-size:12px;line-height:1.8;color:var(--text2);white-space:pre-wrap;font-family:'DM Mono',monospace;max-height:500px;overflow-y:auto;}
+.prompt-content .hl{color:var(--text);}
+.prompt-content .hl2{color:var(--cyan);}
+.prompt-content .hl3{color:var(--orange);}
+.prompt-content .hl4{color:var(--yellow);}
+
+/* ARCHITECTURE DIAGRAM */
+.arch-diagram{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:28px;margin-top:32px;overflow-x:auto;}
+.arch-row{display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap;}
+.arch-label{font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--text3);width:100px;flex-shrink:0;}
+.arch-box{background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:6px 12px;font-size:11px;font-weight:600;white-space:nowrap;}
+.arch-box.b-violet{border-color:rgba(124,111,255,.4);color:var(--violet);}
+.arch-box.b-blue{border-color:rgba(66,133,244,.4);color:var(--gemini);}
+.arch-box.b-green{border-color:rgba(34,211,163,.4);color:var(--green);}
+.arch-box.b-orange{border-color:rgba(255,122,47,.4);color:var(--orange);}
+.arch-box.b-pink{border-color:rgba(255,95,160,.4);color:var(--pink);}
+.arch-arrow{color:var(--text3);font-size:16px;}
+.arch-sep{width:100%;border-top:1px dashed var(--border);margin:8px 0;}
+
+/* COMPARISON TABLE */
+table{width:100%;border-collapse:collapse;margin-top:24px;font-size:13px;}
+th{background:var(--bg3);padding:10px 14px;text-align:left;font-weight:700;font-size:11px;letter-spacing:.3px;color:var(--text2);border-bottom:1px solid var(--border2);}
+td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2);}
+td:first-child{font-weight:600;color:var(--text);}
+tr:hover td{background:var(--bg3);}
+.check{color:var(--green);}
+.cross{color:var(--red);}
+.partial{color:var(--yellow);}
+
+/* FOOTER */
+footer{padding:48px 32px;border-top:1px solid var(--border);text-align:center;color:var(--text3);font-size:12px;}
+footer strong{color:var(--text2);}
+
+/* HIGHLIGHT BLOCKS */
+.info-block{background:rgba(66,133,244,.08);border:1px solid rgba(66,133,244,.2);border-radius:10px;padding:14px 18px;font-size:12px;color:var(--text2);line-height:1.7;margin:12px 0;}
+.warn-block{background:rgba(255,210,63,.07);border:1px solid rgba(255,210,63,.2);border-radius:10px;padding:14px 18px;font-size:12px;color:var(--text2);line-height:1.7;margin:12px 0;}
+.info-block strong,.warn-block strong{color:var(--text);}
+
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">Armon<span class="ia">IA</span> <span class="nav-badge">MASTER FRAMEWORK v1.0</span></div>
+  <div class="nav-links">
+    <a href="#vision">Visión</a>
+    <a href="#arquitectura">Arquitectura</a>
+    <a href="#pasos">Pasos</a>
+    <a href="#stack">Stack</a>
+    <a href="#prompt-maestro">Prompt Maestro</a>
+    <a href="#roadmap">Roadmap</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-tag"><span class="dot"></span> Beta · Google AI Studio + Firebase</div>
+    <h1>El Blueprint Completo<br>para construir <span class="grad">ArmonIA</span></h1>
+    <p class="hero-sub">Arquitectura, metodología, stack tecnológico y el Prompt Maestro para lanzar la Beta con Gemini API gratis — diseñada para escalar a Claude, OpenAI y ElevenLabs.</p>
+    <div class="stack-pills">
+      <span class="sp primary">Gemini 1.5 Flash (gratis)</span>
+      <span class="sp green">Firebase Firestore + Auth</span>
+      <span class="sp green">Firebase Hosting</span>
+      <span class="sp violet">Claude API (futuro)</span>
+      <span class="sp violet">OpenAI GPT-4 (futuro)</span>
+      <span class="sp orange">ElevenLabs TTS (futuro)</span>
+      <span class="sp orange">Suno API (cuando disponible)</span>
+    </div>
+    <div class="scroll-cue">
+      <span>Explorar el framework</span>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
+    </div>
+  </div>
+</div>
+
+<!-- VISIÓN -->
+<section id="vision">
+  <div class="sec-label">Punto de Partida</div>
+  <div class="sec-title">¿Qué es ArmonIA y qué problema resuelve?</div>
+  <p class="sec-desc">Suno opera con semántica pura — no entiende compases ni teoría musical, entiende texturas y emociones. ArmonIA es el puente que traduce la visión analógica del productor al lenguaje que los modelos generativos procesan.</p>
+
+  <div class="cards" style="margin-top:32px;">
+    <div class="card accent-violet">
+      <div class="card-icon">🎸</div>
+      <div class="card-title">El Productor Humano</div>
+      <div class="card-desc">Tiene los oídos, los ojos y la conciencia. Conoce compases, instrumentación, registro vocal, acento chileno, emoción. No debería necesitar aprender "cómo hablarle a una IA".</div>
+    </div>
+    <div class="card accent-blue">
+      <div class="card-icon">🤖</div>
+      <div class="card-title">La IA Co-Productora</div>
+      <div class="card-desc">Domina los prompts semánticos, los metatags Suno, el hackeo fonético y la iteración sistemática. Traduce la visión musical a tokens que los modelos generativos entienden.</div>
+    </div>
+    <div class="card accent-green">
+      <div class="card-icon">⚡</div>
+      <div class="card-title">El Portal Cuántico</div>
+      <div class="card-desc">La interfaz que conecta ambos mundos. Asíncrona, fluida, que respeta que el humano a veces va al estudio, toca instrumentos o habla con músicos reales.</div>
+    </div>
+    <div class="card accent-orange">
+      <div class="card-icon">🌍</div>
+      <div class="card-title">La Plataforma Global</div>
+      <div class="card-desc">Una vez validado el método con Armin, ArmonIA se abre al mundo. Otros músicos pueden usar la misma metodología AIWIS sin necesitar saber nada de prompts.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ARQUITECTURA -->
+<section id="arquitectura">
+  <div class="sec-label">Diseño del Sistema</div>
+  <div class="sec-title">Arquitectura Multi-IA: Provider-Agnostic</div>
+  <p class="sec-desc">El secreto del diseño es separar la lógica de negocio del proveedor de IA. Un patrón Adapter permite cambiar entre Gemini, Claude, OpenAI y ElevenLabs sin reescribir la app.</p>
+
+  <div class="arch-diagram">
+    <div class="arch-row">
+      <div class="arch-label">Frontend</div>
+      <div class="arch-box b-violet">ArmonIA UI (HTML/CSS/JS)</div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-box b-violet">AIProviderAdapter</div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-box b-blue">Gemini 1.5 Flash</div>
+      <div class="arch-box b-violet" style="opacity:.4;">Claude Sonnet</div>
+      <div class="arch-box b-violet" style="opacity:.4;">GPT-4o</div>
+    </div>
+    <div class="arch-sep"></div>
+    <div class="arch-row">
+      <div class="arch-label">Persistencia</div>
+      <div class="arch-box b-blue">Firebase Auth</div>
+      <div class="arch-arrow">+</div>
+      <div class="arch-box b-blue">Firestore DB</div>
+      <div class="arch-arrow">+</div>
+      <div class="arch-box b-blue">Firebase Storage</div>
+      <div class="arch-arrow">+</div>
+      <div class="arch-box b-blue">Firebase Hosting</div>
+    </div>
+    <div class="arch-sep"></div>
+    <div class="arch-row">
+      <div class="arch-label">Módulos Core</div>
+      <div class="arch-box b-green">LyricsEngine</div>
+      <div class="arch-box b-green">StyleBuilder</div>
+      <div class="arch-box b-green">PhoneticHacker</div>
+      <div class="arch-box b-green">VersionControl</div>
+      <div class="arch-box b-green">ContextBuilder</div>
+    </div>
+    <div class="arch-sep"></div>
+    <div class="arch-row">
+      <div class="arch-label">Futuro</div>
+      <div class="arch-box b-orange" style="opacity:.6;">ElevenLabs TTS</div>
+      <div class="arch-box b-orange" style="opacity:.6;">Suno API</div>
+      <div class="arch-box b-pink" style="opacity:.6;">Google Drive Sync</div>
+      <div class="arch-box b-pink" style="opacity:.6;">Multi-user Auth</div>
+    </div>
+  </div>
+
+  <div class="code-block" style="margin-top:24px;">
+    <div class="code-header">
+      <span>AI Provider Adapter Pattern (JS)</span>
+      <button onclick="copyCode(this,'code-adapter')">Copiar</button>
+    </div>
+    <pre id="code-adapter"><span class="com">// 🔑 PATRÓN CENTRAL: La app nunca llama a una API directamente.</span>
+<span class="com">// Siempre pasa por este Adapter. Cambiar de IA = cambiar 1 variable.</span>
+
+<span class="kw">const</span> <span class="var">AI_PROVIDERS</span> = {
+  gemini: {
+    <span class="var">name</span>: <span class="str">'Gemini 1.5 Flash'</span>,
+    <span class="var">model</span>: <span class="str">'gemini-1.5-flash'</span>,
+    <span class="var">endpoint</span>: <span class="fn">key</span> => <span class="str">`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:streamGenerateContent?key=${key}`</span>,
+    <span class="var">free</span>: <span class="kw">true</span>,
+    <span class="var">buildPayload</span>: <span class="fn">(system, messages)</span> => ({
+      <span class="var">system_instruction</span>: { parts: [{ text: system }] },
+      <span class="var">contents</span>: messages.<span class="fn">map</span>(m => ({
+        role: m.role === <span class="str">'assistant'</span> ? <span class="str">'model'</span> : <span class="str">'user'</span>,
+        parts: [{ text: m.content }]
+      }))
+    })
+  },
+  claude: {
+    <span class="var">name</span>: <span class="str">'Claude Sonnet'</span>,
+    <span class="var">model</span>: <span class="str">'claude-sonnet-4-5'</span>,
+    <span class="var">endpoint</span>: <span class="fn">_</span> => <span class="str">'https://api.anthropic.com/v1/messages'</span>,
+    <span class="var">free</span>: <span class="kw">false</span>,
+    <span class="var">headers</span>: <span class="fn">key</span> => ({ <span class="str">'x-api-key'</span>: key, <span class="str">'anthropic-version'</span>: <span class="str">'2023-06-01'</span> })
+  },
+  openai: {
+    <span class="var">name</span>: <span class="str">'GPT-4o'</span>,
+    <span class="var">model</span>: <span class="str">'gpt-4o'</span>,
+    <span class="var">endpoint</span>: <span class="fn">_</span> => <span class="str">'https://api.openai.com/v1/chat/completions'</span>,
+    <span class="var">free</span>: <span class="kw">false</span>
+  }
+};
+
+<span class="com">// Llamada unificada — funciona igual sin importar qué IA se use</span>
+<span class="kw">async function</span> <span class="fn">callAI</span>(provider, apiKey, systemPrompt, messages, <span class="fn">onChunk</span>) {
+  <span class="kw">const</span> config = AI_PROVIDERS[provider];
+  <span class="kw">if</span> (!config) <span class="kw">throw new</span> Error(<span class="str">`Provider '${provider}' no configurado`</span>);
+  <span class="com">// ... lógica de fetch con streaming por provider</span>
+}</pre>
+  </div>
+</section>
+
+<!-- COMPARATIVA STACK -->
+<section id="stack">
+  <div class="sec-label">Decisión Técnica</div>
+  <div class="sec-title">¿Hosting en Firebase, Vercel o Antigravity?</div>
+  <p class="sec-desc">Evaluamos las 3 opciones para la Beta. Mi recomendación es <strong style="color:var(--gemini)">Firebase Hosting</strong> porque ya estás en el ecosistema Google (Gemini API, Firestore) — un solo proyecto, una sola factura, free tier generoso.</p>
+
+  <div class="warn-block">
+    <strong>Sobre Antigravity:</strong> Si te refieres a una plataforma específica que ya usas, cuéntame más y lo incorporamos. Si es un nombre que escuchaste, podría ser un no-code builder — para ArmonIA recomiendo código real (HTML/JS + Firebase) para tener control total sobre la integración con las APIs de IA.
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Criterio</th>
+        <th>Firebase Hosting ⭐</th>
+        <th>Vercel</th>
+        <th>GitHub Pages</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Free tier</td><td class="check">✓ Generoso (10GB/mes)</td><td class="check">✓ Generoso</td><td class="check">✓ Ilimitado</td></tr>
+      <tr><td>Integración Gemini/Firebase</td><td class="check">✓ Nativo — mismo proyecto</td><td class="partial">◐ Externo</td><td class="partial">◐ Externo</td></tr>
+      <tr><td>Firestore Auth integrado</td><td class="check">✓ Automático</td><td class="cross">✗ Requiere config extra</td><td class="cross">✗ No</td></tr>
+      <tr><td>Deploy en segundos</td><td class="check">✓ firebase deploy</td><td class="check">✓ git push</td><td class="check">✓ git push</td></tr>
+      <tr><td>Custom domain gratis</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
+      <tr><td>Serverless functions futuras</td><td class="check">✓ Cloud Functions integradas</td><td class="check">✓ Edge Functions</td><td class="cross">✗ No</td></tr>
+      <tr><td>Escala a producción</td><td class="check">✓ Pay-as-you-go</td><td class="check">✓</td><td class="cross">✗ Estático solamente</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- PASOS DE CONSTRUCCIÓN -->
+<section id="pasos">
+  <div class="sec-label">Metodología de Construcción</div>
+  <div class="sec-title">10 Pasos: de Cero a Beta Funcional</div>
+  <p class="sec-desc">Cada paso es autónomo y entregable. Puedes hacer 1-2 por sesión. Al final del Paso 5 ya tienes una Beta usable.</p>
+
+  <div class="steps" id="steps-container">
+
+    <!-- PASO 1 -->
+    <div class="step" onclick="toggleStep(this, 's1')">
+      <div class="step-connector">
+        <div class="step-num">1</div>
+        <div class="step-line"></div>
+      </div>
+      <div class="step-body">
+        <div class="step-header">
+          <div class="step-meta">
+            <div class="step-title">Proyecto Firebase + Gemini API activados</div>
+            <div class="step-subtitle">FUNDACIÓN · ~30 minutos · Gratuito</div>
+            <div class="step-tags">
+              <span class="step-tag" style="background:rgba(66,133,244,.12);color:var(--gemini);">Firebase Console</span>
+              <span class="step-tag" style="background:rgba(66,133,244,.12);color:var(--gemini);">Google AI Studio</span>
+              <span class="step-tag" style="background:rgba(34,211,163,.12);color:var(--green);">Sin costo</span>
+            </div>
+          </div>
+        </div>
+        <div class="step-content" id="s1">
+          <div class="info-block"><strong>Objetivo:</strong> Tener las credenciales listas antes de escribir una línea de código.</div>
+          <p style="font-size:13px;color:var(--text2);margin-bottom:12px;line-height:1.7;"><strong style="color:var(--text);">A) Google AI Studio → Gemini API Key</strong></p>
+          <ol style="font-size:12px;color:var(--text2);line-height:2;padding-left:20px;">
+            <li>Ir a <strong style="color:var(--cyan);">aistudio.google.com</strong></li>
+            <li>Click en "Get API Key" → "Create API key in new project"</li>
+            <li>Copiar la key (formato: <code style="font-family:'DM Mono',monospace;font-size:11px;background:var(--bg3);padding:1px 5px;border-radius:4px;">AIza...</code>)</li>
+            <li>Tier gratuito: 15 req/min, 1M tokens/día con Gemini 1.5 Flash — suficiente para Beta</li>
+          </ol>
+          <p style="font-size:13px;color:var(--text2);margin:14px 0 8px;"><strong style="color:var(--text);">B) Firebase Console → Nuevo Proyecto</strong></p>
+          <ol style="font-size:12px;color:var(--text2);line-height:2;padding-left:20px;">
+            <li>Ir a <strong style="color:var(--cyan);">console.firebase.google.com</strong></li>
+            <li>Crear proyecto: <code style="font-family:'DM Mono',monospace;font-size:11px;background:var(--bg3);padding:1px 5px;border-radius:4px;">armonia-aiwis</code></li>
+            <li>Activar: <strong>Firestore</strong> (modo test), <strong>Authentication</strong> (Google provider), <strong>Storage</strong>, <strong>Hosting</strong></li>
+            <li>Crear Web App → copiar <code style="font-family:'DM Mono',monospace;font-size:11px;background:var(--bg3);padding:1px 5px;border-radius:4px;">firebaseConfig</code> object</li>
+          </ol>
+          <div class="warn-block" style="margin-top:12px;"><strong>Importante:</strong> Las API Keys de Gemini van en el frontend (OK para prototipo). Para producción, moverlas a Cloud Functions para no exponerlas.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PASO 2 -->
+    <div class="step" onclick="toggleStep(this, 's2')">
+      <div class="step-connector">
+        <div class="step-num">2</div>
+        <div class="step-line"></div>
+      </div>
+      <div class="step-body">
+        <div class="step-header">
+          <div class="step-meta">
+            <div class="step-title">Estructura del proyecto + AIProviderAdapter</div>
+            <div class="step-subtitle">ARQUITECTURA CORE · ~1 hora</div>
+            <div class="step-tags">
+              <span class="step-tag" style="background:rgba(124,111,255,.12);color:var(--violet);">HTML/CSS/JS vanilla</span>
+              <span class="step-tag" style="background:rgba(124,111,255,.12);color:var(--violet);">Módulos ES6</span>
+            </div>
+          </div>
+        </div>
+        <div class="step-content" id="s2">
+          <p style="font-size:13px;color:var(--text2);margin-bottom:12px;line-height:1.7;">Estructura de archivos para la Beta (sin build tools — pure HTML para despliegue instantáneo):</p>
+          <div class="code-block">
+            <div class="code-header"><span>Estructura del proyecto</span><button onclick="copyCode(this,'code-struct')">Copiar</button></div>
+            <pre id="code-struct"><span class="var">armonia-aiwis/</span>
+├── <span class="fn">index.html</span>          <span class="com">← App principal (single file)</span>
+├── <span class="fn">css/</span>
+│   └── <span class="fn">armonia.css</span>     <span class="com">← Estilos (dark theme, AIWIS brand)</span>
+├── <span class="fn">js/</span>
+│   ├── <span class="fn">ai-adapter.js</span>   <span class="com">← AIProviderAdapter (CORE)</span>
+│   ├── <span class="fn">firebase.js</span>     <span class="com">← Firebase init + auth + db</span>
+│   ├── <span class="fn">lyrics-engine.js</span> <span class="com">← Manejo de letra + metatags Suno</span>
+│   ├── <span class="fn">style-builder.js</span> <span class="com">← Constructor de Style Prompt</span>
+│   ├── <span class="fn">phonetic.js</span>     <span class="com">← Hackeo fonético chileno</span>
+│   ├── <span class="fn">versions.js</span>     <span class="com">← Control de versiones</span>
+│   └── <span class="fn">chat.js</span>         <span class="com">← Interfaz de chat con IA</span>
+├── <span class="fn">firebase.json</span>       <span class="com">← Config Firebase Hosting</span>
+└── <span class="fn">.firebaserc</span>         <span class="com">← Proyecto Firebase</span></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PASO 3 -->
+    <div class="step" onclick="toggleStep(this, 's3')">
+      <div class="step-connector">
+        <div class="step-num">3</div>
+        <div class="step-line"></div>
+      </div>
+      <div class="step-body">
+        <div class="step-header">
+          <div class="step-meta">
+            <div class="step-title">ContextBuilder + SongModel (Firestore schema)</div>
+            <div class="step-subtitle">DATOS · ~1 hora</div>
+            <div class="step-tags">
+              <span class="step-tag" style="background:rgba(34,211,163,.12);color:var(--green);">Firestore</span>
+              <span class="step-tag" style="background:rgba(34,211,163,.12);color:var(--green);">Data Model</span>
+            </div>
+          </div>
+        </div>
+        <div class="step-content" id="s3">
+          <p style="font-size:13px;color:var(--text2);margin-bottom:12px;">El modelo de datos que persiste en Firestore y que el ContextBuilder transforma en el contexto que recibe la IA:</p>
+          <div class="code-block">
+            <div class="code-header"><span>Firestore Song Schema</span><button onclick="copyCode(this,'code-schema')">Copiar</button></div>
+            <pre id="code-schema"><span class="com">// Firestore collection: users/{uid}/songs/{songId}</span>
+{
+  <span class="var">id</span>: <span class="str">"song_abc123"</span>,
+  <span class="var">title</span>: <span class="str">"Dile Que Fue Por Ti"</span>,
+  <span class="var">createdAt</span>: Timestamp,
+  <span class="var">updatedAt</span>: Timestamp,
+
+  <span class="com">// Metadata musical</span>
+  <span class="var">meta</span>: {
+    genre: <span class="str">"Latin pop ballad"</span>,
+    compass: <span class="str">"4/4"</span>,
+    bpm: <span class="num">82</span>,
+    key: <span class="str">"Am"</span>,
+    voiceType: <span class="str">"male tenor"</span>,
+    language: <span class="str">"Chilean Spanish"</span>,
+    instrumentation: <span class="str">"fingerpicked acoustic guitar, cello, warm bass"</span>,
+    emotion: <span class="str">"melancolía, amor no correspondido"</span>,
+    audioReferenceUrl: <span class="str">"https://suno.com/song/..."</span>
+  },
+
+  <span class="com">// Contenido Suno</span>
+  <span class="var">sunoContent</span>: {
+    lyrics: <span class="str">"[Verse 1]\n[male tenor...]\nSi te marchas..."</span>,
+    stylePrompt: <span class="str">"Latin pop ballad featuring a male tenor..."</span>
+  },
+
+  <span class="com">// Historial de versiones</span>
+  <span class="var">versions</span>: [
+    { id: <span class="str">"v1"</span>, note: <span class="str">"Primera generación"</span>, timestamp: ..., lyrics: ..., style: ... }
+  ],
+
+  <span class="com">// Historial de chat (últimas 20 conversaciones)</span>
+  <span class="var">chatHistory</span>: [
+    { role: <span class="str">"user"</span>, content: <span class="str">"el cello está muy fuerte"</span>, ts: ... },
+    { role: <span class="str">"model"</span>, content: <span class="str">"Ajusta el tag a: [intimate cello..."</span>, ts: ... }
+  ]
+}</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PASO 4 -->
+    <div class="step" onclick="toggleStep(this, 's4')">
+      <div class="step-connector">
+        <div class="step-num">4</div>
+        <div class="step-line"></div>
+      </div>
+      <div class="step-body">
+        <div class="step-header">
+          <div class="step-meta">
+            <div class="step-title">Implementar AIProviderAdapter con Gemini Streaming</div>
+            <div class="step-subtitle">IA INTEGRATION · ~2 horas · La pieza más crítica</div>
+            <div class="step-tags">
+              <span class="step-tag" style="background:rgba(66,133,244,.12);color:var(--gemini);">Gemini 1.5 Flash</span>
+              <span class="step-tag" style="background:rgba(66,133,244,.12);color:var(--gemini);">Streaming SSE</span>
+            </div>
+          </div>
+        </div>
+        <div class="step-content" id="s4">
+          <div class="code-block">
+            <div class="code-header"><span>ai-adapter.js — Gemini Streaming completo</span><button onclick="copyCode(this,'code-gemini')">Copiar</button></div>
+            <pre id="code-gemini"><span class="com">// ai-adapter.js</span>
+<span class="kw">const</span> <span class="var">GEMINI_BASE</span> = <span class="str">'https://generativelanguage.googleapis.com/v1beta/models'</span>;
+
+<span class="kw">async function</span> <span class="fn">callGeminiStream</span>(apiKey, systemPrompt, messages, <span class="fn">onChunk</span>, <span class="fn">onDone</span>) {
+  <span class="kw">const</span> url = <span class="str">`${GEMINI_BASE}/gemini-1.5-flash:streamGenerateContent?key=${apiKey}&alt=sse`</span>;
+
+  <span class="kw">const</span> payload = {
+    <span class="var">system_instruction</span>: { parts: [{ text: systemPrompt }] },
+    <span class="var">contents</span>: messages.<span class="fn">map</span>(m => ({
+      <span class="var">role</span>: m.role === <span class="str">'assistant'</span> ? <span class="str">'model'</span> : <span class="str">'user'</span>,
+      <span class="var">parts</span>: [{ text: m.content }]
+    })),
+    <span class="var">generationConfig</span>: {
+      temperature: <span class="num">0.7</span>,
+      maxOutputTokens: <span class="num">2048</span>
+    }
+  };
+
+  <span class="kw">const</span> response = <span class="kw">await</span> <span class="fn">fetch</span>(url, {
+    method: <span class="str">'POST'</span>,
+    headers: { <span class="str">'Content-Type'</span>: <span class="str">'application/json'</span> },
+    body: <span class="fn">JSON.stringify</span>(payload)
+  });
+
+  <span class="kw">if</span> (!response.ok) {
+    <span class="kw">const</span> err = <span class="kw">await</span> response.<span class="fn">json</span>();
+    <span class="kw">throw new</span> Error(err.error?.message || <span class="str">`HTTP ${response.status}`</span>);
+  }
+
+  <span class="kw">const</span> reader = response.body.<span class="fn">getReader</span>();
+  <span class="kw">const</span> decoder = <span class="kw">new</span> <span class="fn">TextDecoder</span>();
+  <span class="kw">let</span> buffer = <span class="str">''</span>;
+  <span class="kw">let</span> fullText = <span class="str">''</span>;
+
+  <span class="kw">while</span> (<span class="kw">true</span>) {
+    <span class="kw">const</span> { done, value } = <span class="kw">await</span> reader.<span class="fn">read</span>();
+    <span class="kw">if</span> (done) <span class="kw">break</span>;
+    buffer += decoder.<span class="fn">decode</span>(value, { stream: <span class="kw">true</span> });
+    <span class="kw">const</span> lines = buffer.<span class="fn">split</span>(<span class="str">'\n'</span>);
+    buffer = lines.<span class="fn">pop</span>();
+
+    <span class="kw">for</span> (<span class="kw">const</span> line <span class="kw">of</span> lines) {
+      <span class="kw">if</span> (!line.<span class="fn">startsWith</span>(<span class="str">'data: '</span>)) <span class="kw">continue</span>;
+      <span class="kw">try</span> {
+        <span class="kw">const</span> data = <span class="fn">JSON.parse</span>(line.<span class="fn">slice</span>(<span class="num">6</span>));
+        <span class="kw">const</span> chunk = data.candidates?.[<span class="num">0</span>]?.content?.parts?.[<span class="num">0</span>]?.text || <span class="str">''</span>;
+        <span class="kw">if</span> (chunk) { fullText += chunk; <span class="fn">onChunk</span>(chunk, fullText); }
+      } <span class="kw">catch</span>(e) {}
+    }
+  }
+  <span class="fn">onDone</span>(fullText);
+}</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PASO 5 -->
+    <div class="step" onclick="toggleStep(this, 's5')">
+      <div class="step-connector">
+        <div class="step-num">5</div>
+        <div class="step-line"></div>
+      </div>
+      <div class="step-body">
+        <div class="step-header">
+          <div class="step-meta">
+            <div class="step-title">UI Beta funcional + deploy a Firebase Hosting</div>
+            <div class="step-subtitle">MVP ENTREGABLE · ~2-3 horas · Beta ya usable</div>
+            <div class="step-tags">
+              <span class="step-tag" style="background:rgba(34,211,163,.12);color:var(--green);">Deploy</span>
+              <span class="step-tag" style="background:rgba(34,211,163,.12);color:var(--green);">URL pública</span>
+            </div>
+          </div>
+        </div>
+        <div class="step-content" id="s5">
+          <div class="info-block"><strong>✅ Después de este paso tenés la Beta viva en internet.</strong> Los pasos 6-10 son mejoras iterativas.</div>
+          <div class="code-block">
+            <div class="code-header"><span>Deploy a Firebase Hosting</span><button onclick="copyCode(this,'code-deploy')">Copiar</button></div>
+            <pre id="code-deploy"><span class="com"># 1. Instalar Firebase CLI</span>
+npm install -g firebase-tools
+
+<span class="com"># 2. Login</span>
+firebase login
+
+<span class="com"># 3. Init en tu proyecto</span>
+firebase init hosting
+<span class="com"># → Seleccionar proyecto: armonia-aiwis</span>
+<span class="com"># → Public directory: . (raíz)</span>
+<span class="com"># → Single-page app: No</span>
+
+<span class="com"># 4. Deploy</span>
+firebase deploy --only hosting
+
+<span class="com"># Resultado: https://armonia-aiwis.web.app (live en 30 seg)</span></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PASO 6 -->
+    <div class="step" onclick="toggleStep(this, 's6')">
+      <div class="step-connector">
+        <div class="step-num">6</div>
+        <div class="step-line"></div>
+      </div>
+      <div class="step-body">
+        <div class="step-header">
+          <div class="step-meta">
+            <div class="step-title">Firebase Auth + Google Login + persistencia de canciones</div>
+            <div class="step-subtitle">MULTI-USUARIO · ~2 horas</div>
+            <div class="step-tags">
+              <span class="step-tag" style="background:rgba(34,211,163,.12);color:var(--green);">Firebase Auth</span>
+              <span class="step-tag" style="background:rgba(34,211,163,.12);color:var(--green);">Firestore</span>
+            </div>
+          </div>
+        </div>
+        <div class="step-content" id="s6">
+          <p style="font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:12px;">Esto es lo que convierte el prototipo en una plataforma real. Cada usuario tiene sus propias canciones guardadas en Firestore.</p>
+          <div class="code-block">
+            <div class="code-header"><span>firebase.js — Auth + Firestore</span><button onclick="copyCode(this,'code-firebase')">Copiar</button></div>
+            <pre id="code-firebase"><span class="kw">import</span> { initializeApp } <span class="kw">from</span> <span class="str">'firebase/app'</span>;
+<span class="kw">import</span> { getAuth, signInWithPopup, GoogleAuthProvider } <span class="kw">from</span> <span class="str">'firebase/auth'</span>;
+<span class="kw">import</span> { getFirestore, collection, doc, setDoc, getDocs } <span class="kw">from</span> <span class="str">'firebase/firestore'</span>;
+
+<span class="kw">const</span> app = <span class="fn">initializeApp</span>(firebaseConfig);
+<span class="kw">const</span> auth = <span class="fn">getAuth</span>(app);
+<span class="kw">const</span> db = <span class="fn">getFirestore</span>(app);
+
+<span class="com">// Login con Google (1 línea)</span>
+<span class="kw">const</span> <span class="fn">loginWithGoogle</span> = () => <span class="fn">signInWithPopup</span>(auth, <span class="kw">new</span> <span class="fn">GoogleAuthProvider</span>());
+
+<span class="com">// Guardar canción del usuario</span>
+<span class="kw">const</span> <span class="fn">saveSong</span> = <span class="kw">async</span> (uid, song) => {
+  <span class="kw">await</span> <span class="fn">setDoc</span>(<span class="fn">doc</span>(db, <span class="str">`users/${uid}/songs/${song.id}`</span>), song);
+};</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PASO 7 -->
+    <div class="step" onclick="toggleStep(this, 's7')">
+      <div class="step-connector">
+        <div class="step-num">7</div>
+        <div class="step-line"></div>
+      </div>
+      <div class="step-body">
+        <div class="step-header">
+          <div class="step-meta">
+            <div class="step-title">Módulo PhoneticHacker — acento chileno automatizado</div>
+            <div class="step-subtitle">METODOLOGÍA AIWIS · ~1 hora</div>
+            <div class="step-tags">
+              <span class="step-tag" style="background:rgba(255,122,47,.12);color:var(--orange);">Fonética</span>
+              <span class="step-tag" style="background:rgba(255,122,47,.12);color:var(--orange);">AIWIS Core</span>
+            </div>
+          </div>
+        </div>
+        <div class="step-content" id="s7">
+          <div class="code-block">
+            <div class="code-header"><span>phonetic.js — Hackeo fonético Chile</span><button onclick="copyCode(this,'code-phonetic')">Copiar</button></div>
+            <pre id="code-phonetic"><span class="com">// phonetic.js — Módulo AIWIS de hackeo fonético</span>
+<span class="kw">const</span> PHONETIC_RULES = [
+  <span class="com">// Anti-seseo (eliminar acento España)</span>
+  { pattern: <span class="str">/Z/g</span>, replacement: <span class="str">'S'</span>, note: <span class="str">'Z→S (anti seseo)'</span> },
+  { pattern: <span class="str">/CE/gi</span>, replacement: <span class="str">'SE'</span>, note: <span class="str">'C(e)→S (anti seseo)'</span> },
+  { pattern: <span class="str">/CI/gi</span>, replacement: <span class="str">'SI'</span>, note: <span class="str">'C(i)→S (anti seseo)'</span> },
+  { pattern: <span class="str">/C([AOUÁÓÚ])/gi</span>, replacement: <span class="str">'K$1'</span>, note: <span class="str">'CA/CO/CU→K (fuerza)'</span> },
+
+  <span class="com">// Anti-yeísmo (eliminar acento Argentina)</span>
+  { pattern: <span class="str">/LL/gi</span>, replacement: <span class="str">'i'</span>, note: <span class="str">'LL→i (anti yeísmo)'</span> },
+  { pattern: <span class="str">/\bY([AEIOU])/gi</span>, replacement: <span class="str">'i$1'</span>, note: <span class="str">'Y(vocal)→i (neutro)'</span> },
+];
+
+<span class="kw">function</span> <span class="fn">applyPhoneticHack</span>(text) {
+  <span class="kw">let</span> result = text;
+  <span class="kw">const</span> log = [];
+
+  PHONETIC_RULES.<span class="fn">forEach</span>(rule => {
+    <span class="kw">const</span> before = result;
+    result = result.<span class="fn">replace</span>(rule.pattern, rule.replacement);
+    <span class="kw">if</span> (result !== before) log.<span class="fn">push</span>(rule.note);
+  });
+
+  <span class="kw">return</span> { hacked: result, appliedRules: log };
+}
+
+<span class="com">// Ejemplo: applyPhoneticHack("Corazón de hielo, calle sin luz")</span>
+<span class="com">// → { hacked: "KoraSON de hielo, kaie Sin luS", appliedRules: [...] }</span></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PASO 8 -->
+    <div class="step" onclick="toggleStep(this, 's8')">
+      <div class="step-connector">
+        <div class="step-num">8</div>
+        <div class="step-line"></div>
+      </div>
+      <div class="step-body">
+        <div class="step-header">
+          <div class="step-meta">
+            <div class="step-title">Selector de IA + Config Panel (Multi-provider UI)</div>
+            <div class="step-subtitle">ESCALABILIDAD · ~2 horas</div>
+            <div class="step-tags">
+              <span class="step-tag" style="background:rgba(124,111,255,.12);color:var(--violet);">Multi-IA</span>
+              <span class="step-tag" style="background:rgba(124,111,255,.12);color:var(--violet);">Settings Panel</span>
+            </div>
+          </div>
+        </div>
+        <div class="step-content" id="s8">
+          <p style="font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:12px;">Un panel de configuración donde el usuario puede activar y cambiar entre proveedores de IA según las keys que tenga disponibles. Las keys se guardan solo en localStorage (nunca en Firestore).</p>
+          <div class="info-block">
+            <strong>UX del panel de configuración:</strong><br>
+            — Selector de IA activa: Gemini / Claude / GPT-4o<br>
+            — Campo para ingresar cada API Key (masked, localStorage only)<br>
+            — Indicador de estado: verde (key válida), rojo (inválida), gris (no configurada)<br>
+            — Futuro: ElevenLabs key para preview de voz generada
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PASO 9 -->
+    <div class="step" onclick="toggleStep(this, 's9')">
+      <div class="step-connector">
+        <div class="step-num">9</div>
+        <div class="step-line"></div>
+      </div>
+      <div class="step-body">
+        <div class="step-header">
+          <div class="step-meta">
+            <div class="step-title">Google Drive API — sincronización de audio y proyectos</div>
+            <div class="step-subtitle">INTEGRACIÓN GOOGLE · ~3 horas</div>
+            <div class="step-tags">
+              <span class="step-tag" style="background:rgba(66,133,244,.12);color:var(--gemini);">Google Drive API</span>
+              <span class="step-tag" style="background:rgba(66,133,244,.12);color:var(--gemini);">OAuth2</span>
+            </div>
+          </div>
+        </div>
+        <div class="step-content" id="s9">
+          <p style="font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:12px;">Permite subir el audio referencia (o la canción generada por Suno) directo desde Google Drive al contexto de ArmonIA. La IA puede analizar la URL del archivo.</p>
+          <div class="info-block">
+            <strong>Flujo con Drive:</strong><br>
+            1. Usuario sube el .mp3 de Suno a su Google Drive<br>
+            2. ArmonIA pide permiso (OAuth2 scope: drive.readonly)<br>
+            3. El link del archivo se inyecta como audio_reference en el contexto que recibe la IA<br>
+            4. Cuando ElevenLabs esté integrado: la IA puede comparar TTS con el original
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PASO 10 -->
+    <div class="step" onclick="toggleStep(this, 's10')">
+      <div class="step-connector">
+        <div class="step-num">10</div>
+        <div class="step-line"></div>
+      </div>
+      <div class="step-body">
+        <div class="step-header">
+          <div class="step-meta">
+            <div class="step-title">Knowledge Base + Aprendizaje acumulativo por usuario</div>
+            <div class="step-subtitle">DIFERENCIADOR REAL · ~3 horas · Lo que hace a ArmonIA única</div>
+            <div class="step-tags">
+              <span class="step-tag" style="background:rgba(255,210,63,.12);color:var(--yellow);">Memória IA</span>
+              <span class="step-tag" style="background:rgba(255,210,63,.12);color:var(--yellow);">Personalización</span>
+            </div>
+          </div>
+        </div>
+        <div class="step-content" id="s10">
+          <p style="font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:12px;">Cada corrección que hace el usuario se transforma en "memoria" del estilo musical. Esto se inyecta al inicio de cada conversación nueva, haciendo que la IA aprenda el sonido específico del artista.</p>
+          <div class="code-block">
+            <div class="code-header"><span>Knowledge Base injection (Firestore → System Prompt)</span><button onclick="copyCode(this,'code-kb')">Copiar</button></div>
+            <pre id="code-kb"><span class="com">// Firestore: users/{uid}/preferences</span>
+{
+  <span class="var">learnedPatterns</span>: [
+    <span class="str">"Siempre usar 'chest voice only, no belting' — la voz se exagera en los coros"</span>,
+    <span class="str">"Preferir [intimate cello solo] sobre [dramatic cello solo]"</span>,
+    <span class="str">"El BPM óptimo para este artista es 80-86 BPM en 3/4 y 4/4"</span>,
+    <span class="str">"Pronunciación chilena siempre activa — sin excepción"</span>
+  ],
+  <span class="var">favoriteStyleTags</span>: [...],
+  <span class="var">avoidTags</span>: [<span class="str">"dramatic"</span>, <span class="str">"epic"</span>, <span class="str">"aggressive"</span>]
+}
+
+<span class="com">// En el buildSystemPrompt(), se inyecta así:</span>
+<span class="kw">function</span> <span class="fn">buildSystemPrompt</span>(userPrefs) {
+  <span class="kw">return</span> BASE_SYSTEM_PROMPT + <span class="str">`
+
+=== CONOCIMIENTO ACUMULADO DE ESTE ARTISTA ===
+${userPrefs.learnedPatterns.join('\n')}
+Tags que el artista prefiere evitar: ${userPrefs.avoidTags.join(', ')}
+=== FIN DEL CONOCIMIENTO ===`</span>;
+}</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /steps -->
+</section>
+
+<!-- PROMPT MAESTRO -->
+<section id="prompt-maestro">
+  <div class="sec-label">El Cerebro de la Plataforma</div>
+  <div class="sec-title">Prompt Maestro — Sistema AIWIS para Gemini</div>
+  <p class="sec-desc">Este es el System Prompt que va en cada request a la IA. Está optimizado para Gemini pero funciona igual en Claude y GPT-4o. Cópialo tal cual para tu primera integración.</p>
+
+  <div class="prompt-box">
+    <div class="prompt-box-header">
+      <div class="prompt-box-title">🧠 AIWIS_SYSTEM_PROMPT — v1.0 (Production)</div>
+      <button class="btn-copy" onclick="copyCode(this,'prompt-master-text')" style="background:none;border:1px solid rgba(124,111,255,.3);color:var(--violet);border-radius:6px;padding:5px 12px;font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;">Copiar Prompt Completo</button>
+    </div>
+    <pre class="prompt-content" id="prompt-master-text"><span class="hl">Eres el Asistente de Producción Musical IA de ArmonIA, plataforma creada por Armin bajo la metodología AIWIS Music.</span>
+
+<span class="hl2">## TU ROL FUNDAMENTAL</span>
+
+Actúas como co-productor musical experto que vive en la intersección entre:
+- La teoría musical analógica (DAW, instrumentación real, teoría armónica, compases, registros vocales)
+- El lenguaje semántico de los modelos generativos de música (Suno, Udio, etc.)
+
+El artista humano tiene los <span class="hl3">oídos, los ojos y la conciencia</span>. Tú tienes el dominio semántico y la capacidad de iteración rápida.
+Tu trabajo es hacer que la visión del artista llegue intacta al modelo generativo.
+
+<span class="hl2">## CONOCIMIENTO TÉCNICO SUNO (OBLIGATORIO)</span>
+
+<span class="hl4">Semántica vs. Teoría Musical:</span>
+Suno NO procesa acordes, compases ni pentagrama. Procesa TEXTURAS, EMOCIONES y DESCRIPTORES.
+Tu trabajo es traducir "La canción está en Am, 3/4, con cello melancólico" a semántica Suno que funcione.
+
+<span class="hl4">Style Prompt:</span>
+- Los primeros ~120 caracteres tienen el mayor peso semántico (orden importa)
+- Total recomendado: <200 tokens (~150-180 caracteres de texto)  
+- Estructura óptima: [Género] + [Instrumento principal] + [Tipo de voz] + [Tempo/Compás] + [Idioma] + [Descriptores emocionales]
+- NO usar "featuring", "with", cortar verbosidad, priorizar sustantivos y adjetivos
+
+<span class="hl4">Metatags de Sección (van en Lyrics, entre corchetes):</span>
+- Estructurales: [Verse 1], [Chorus], [Bridge], [Pre-Chorus], [Post-Chorus], [Outro], [Intro]
+- Instrumentales: [fingerpicked acoustic guitar], [expressive cello solo with vibrato, 8 bars]
+- Vocales: [male tenor vocals enter], [vocals fade, low register]
+- Transición: [acoustic guitar fades out], [bass guitar enters]
+- Dinámica: [build up], [breakdown], [intimate section]
+
+<span class="hl4">Control Vocal — el problema más común:</span>
+Si la voz se exagera o va a agudos: agregar en Style "chest voice only, no belting or climactic high notes, controlled dynamics, low register"
+Si el acento sale ibérico: activar "Chilean Spanish pronunciation" o "Latin American Spanish, neutral accent"
+
+<span class="hl2">## METODOLOGÍA AIWIS DE HACKEO FONÉTICO</span>
+
+<span class="hl4">Anti-Seseo (eliminar acento España):</span>
+Z → S (Corazón → Korazon, pero en letra fonética: "koraSon")
+C(e,i) → S (Cielo → Sielo, Celos → Selos)
+CA/CO/CU → KA/KO/KU (Casa → Kasa) — solo si el seseo es problema
+
+<span class="hl4">Anti-Yeísmo (eliminar acento Argentina):</span>
+LL → i/hi (Lluvia → hiubia, Calle → kaie)
+Y consonante → i (Yo → io, Ya → ia, Yendo → iendo)
+
+<span class="hl4">Legato Urbano (flow de la métrica):</span>
+Unir palabras cortas: "en la calle" → "en-la-kaie"
+Añadir comas estratégicas para respiraciones naturales
+
+<span class="hl2">## PROCESO DE ITERACIÓN</span>
+
+Cuando el artista diga "X está mal" o "cambiar Y":
+1. Identifica el elemento específico (metatag, style tag, pronunciación, registro)
+2. Propón el cambio exacto listo para copiar-pegar
+3. Explica en 1 línea POR QUÉ ese cambio ayuda semánticamente
+4. Ofrece 2-3 variantes si la solución no es única
+
+Cuando generes Style Prompts: muestra siempre el prompt completo (no solo la parte modificada).
+Cuando corrijas Lyrics: muestra el bloque de sección afectado completo.
+
+<span class="hl2">## FORMATO DE RESPUESTAS</span>
+
+- Conciso y directo. El artista es experto — no expliques lo básico.
+- Máximo 3-4 sugerencias por respuesta
+- Código/Prompts/Letras: siempre en bloques delimitados con etiquetas claras
+- Si necesitas contexto que no tienes, pídelo en 1 pregunta específica
+- Responde en español (chileno natural, sin formalidades excesivas)
+
+<span class="hl2">## CUANDO RECIBES EL CONTEXTO DE LA CANCIÓN</span>
+
+El contexto incluirá: título, compás, BPM, género, voz, idioma, instrumentación, emoción central, style prompt actual, y letra actual con metatags.
+
+Úsalo para dar feedback ESPECÍFICO a ESA canción. No respuestas genéricas.
+Prioridad: resolver el problema planteado → sugerir mejoras adicionales si son obvias.
+
+<span class="hl2">## RESTRICCIONES IMPORTANTES</span>
+
+- NUNCA cambiar la estructura de secciones sin pedirlo explícitamente
+- NUNCA agregar instrumentos que no estaban en la visión original sin justificarlo
+- NUNCA sobre-producir el style prompt (más tags no siempre es mejor)
+- Si algo no sabes, decirlo directamente — no inventar tags que no existen en Suno</pre>
+  </div>
+</section>
+
+<!-- ROADMAP -->
+<section id="roadmap">
+  <div class="sec-label">Visión Completa</div>
+  <div class="sec-title">Roadmap ArmonIA: Beta → Producto</div>
+
+  <div class="cards">
+    <div class="card accent-green">
+      <div class="card-icon">🚀</div>
+      <div class="card-title">Beta (Ahora · Gemini gratis)</div>
+      <div class="card-desc">Chat con Gemini 1.5 Flash · Editor de letras + Style Builder · Metatags Suno · Versiones · Firebase Auth + Firestore · Deploy en Firebase Hosting</div>
+    </div>
+    <div class="card accent-blue">
+      <div class="card-icon">⚡</div>
+      <div class="card-title">v1.0 (Multi-IA)</div>
+      <div class="card-desc">Claude API + OpenAI GPT-4o integrados vía Adapter · Selector de IA en Settings · Knowledge Base por usuario · Google Drive sync de audio · Phonetic Hacker UI</div>
+    </div>
+    <div class="card accent-orange">
+      <div class="card-icon">🎙️</div>
+      <div class="card-title">v1.5 (Audio Intelligence)</div>
+      <div class="card-desc">ElevenLabs TTS para preview de voz · Waveform visualizer · Upload de audio Suno para análisis · Comparación A/B de versiones con audio</div>
+    </div>
+    <div class="card accent-violet">
+      <div class="card-icon">🌍</div>
+      <div class="card-title">v2.0 (Plataforma Global)</div>
+      <div class="card-desc">Multi-usuario con planes · Biblioteca de prompts comunitarios · Templates de géneros · API pública ArmonIA para developers · Modo escuela (academias de música)</div>
+    </div>
+  </div>
+
+  <table style="margin-top:32px;">
+    <thead>
+      <tr>
+        <th>Feature</th>
+        <th>Beta (hoy)</th>
+        <th>v1.0</th>
+        <th>v1.5</th>
+        <th>v2.0</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Chat con IA (Gemini)</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
+      <tr><td>Claude + OpenAI</td><td class="cross">—</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
+      <tr><td>Editor Lyrics + Style</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
+      <tr><td>Phonetic Hacker</td><td class="partial">◐ Manual</td><td class="check">✓ Auto</td><td class="check">✓</td><td class="check">✓</td></tr>
+      <tr><td>Firebase Auth</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
+      <tr><td>Knowledge Base IA</td><td class="cross">—</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
+      <tr><td>ElevenLabs TTS</td><td class="cross">—</td><td class="cross">—</td><td class="check">✓</td><td class="check">✓</td></tr>
+      <tr><td>Multi-usuario / SaaS</td><td class="cross">—</td><td class="cross">—</td><td class="cross">—</td><td class="check">✓</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<footer>
+  <p><strong>ArmonIA Master Framework v1.0</strong> · Creado por Armin + Claude · AIWIS Music</p>
+  <p style="margin-top:8px;">Este documento es el blueprint vivo. Actualizar con cada iteración del producto.</p>
+</footer>
+
+<script>
+function toggleStep(el, id) {
+  const content = document.getElementById(id);
+  const isOpen = content.classList.contains('open');
+  content.classList.toggle('open');
+  el.classList.toggle('active', !isOpen);
+}
+
+function copyCode(btn, id) {
+  const el = document.getElementById(id);
+  const text = el.innerText || el.textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const orig = btn.textContent;
+    btn.textContent = '✓ Copiado';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+// Smooth scroll for nav links
+document.querySelectorAll('.nav-links a').forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    const target = document.querySelector(a.getAttribute('href'));
+    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+});
+
+// Highlight active nav on scroll
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const id = entry.target.id;
+      document.querySelectorAll('.nav-links a').forEach(a => {
+        a.style.color = a.getAttribute('href') === '#' + id ? 'var(--violet)' : '';
+      });
+    }
+  });
+}, { threshold: 0.3 });
+document.querySelectorAll('section[id]').forEach(s => observer.observe(s));
+
+// Btn copy styles
+document.querySelectorAll('.code-header button').forEach(btn => {
+  btn.addEventListener('mouseenter', () => { if (!btn.classList.contains('copied')) btn.style.borderColor = 'var(--green)'; });
+  btn.addEventListener('mouseleave', () => { if (!btn.classList.contains('copied')) btn.style.borderColor = ''; });
+});
+</script>
+</body>
+</html>
